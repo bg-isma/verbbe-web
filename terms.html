@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#121113" />
+    <meta name="color-scheme" content="dark" />
+    <title>Verbbe — Terms and Conditions</title>
+    <meta name="description" content="Terms and conditions of Verbbe." />
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+    <script>
+      (function () {
+        var q = new URLSearchParams(location.search).get("lang");
+        var s = null;
+        try {
+          s = localStorage.getItem("verbbe.lang");
+        } catch (_) {}
+        var n = (navigator.language || "").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+        var lang = q === "es" || q === "en" ? q : s === "es" || s === "en" ? s : n;
+        document.documentElement.lang = lang;
+        document.documentElement.dataset.lang = lang;
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="doc-wrap">
+      <header class="nav">
+        <a class="back" href="index.html">
+          <span class="lang-es visually-hidden">Atrás</span>
+          <span class="lang-en visually-hidden">Back</span>
+          <svg viewBox="0 0 17 16" fill="none" aria-hidden="true">
+            <path d="M10.52 3.5L5.9 8l4.62 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <h1>
+          <span class="lang-es">Términos y condiciones</span>
+          <span class="lang-en">Terms and conditions</span>
+        </h1>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" data-lang-btn="es">ES</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+      </header>
+
+      <article class="doc">
+        <div class="lang-es">
+          <p>Al usar Verbbe aceptas estas condiciones.</p>
+
+          <h2>Qué es Verbbe</h2>
+          <p>Verbbe sirve para organizar y reproducir archivos de audio que tú vinculas desde Archivos o que un servidor Verbbe self-hosted indexa en un equipo que tú administras. No es una tienda, no licencia canciones y no opera un catálogo comercial de streaming. No se conecta a Apple Music, YouTube, Spotify, SoundCloud ni servicios similares para bajar o emitir su catálogo.</p>
+
+          <h2>Tus archivos y derechos</h2>
+          <p>Eres responsable de tener derecho a usar los archivos que reproduces, tanto en el iPhone como en el servidor. Verbbe no revisa ni autoriza el contenido de tu biblioteca. Si no tienes esos derechos, no uses la app para reproducirlos.</p>
+
+          <h2>Servidor opcional</h2>
+          <p>El servidor es software que tú instalas (por ejemplo con Docker) en tu PC o red. Tú eliges la URL, las cuentas y las carpetas de música. El desarrollador no aloja ese servidor. Eres responsable de su seguridad, de a quién das acceso y de que solo indexe archivos que puedes usar.</p>
+          <p>Puedes dejarlo solo en tu Wi-Fi o publicarlo como enlace HTTPS (Tailscale Funnel en el ordenador). Ese enlace es público; quien lo tenga llega a la pantalla de inicio de sesión. En el teléfono solo hace falta Verbbe. Eres responsable de las contraseñas y de con quién lo compartes.</p>
+          <p>La reproducción remota transmite desde tu máquina hacia tu iPhone. No es un servicio de streaming del desarrollador ni un acceso a catálogos de terceros.</p>
+
+          <h2>Cuentas</h2>
+          <p>No hace falta cuenta para la biblioteca local. Si creas el administrador del servidor o inicias sesión, esa cuenta vive en tu servidor. El administrador puede borrar otros usuarios en la app. Cerrar sesión en el iPhone no borra la música del servidor.</p>
+
+          <h2>Funcionamiento</h2>
+          <p>Verbbe no garantiza que todos los archivos, etiquetas, carátulas o letras se lean correctamente. El resultado depende de cómo estén etiquetados tus archivos y de que el iPhone pueda alcanzar el servidor.</p>
+          <p>Si desvinculas o vacías una carpeta vinculada, las canciones de esa carpeta desaparecen de la biblioteca local.</p>
+
+          <h2>Uso personal</h2>
+          <p>La app se ofrece tal cual, para uso personal. En la medida permitida por la ley, el desarrollador no responde de pérdidas de archivos, interrupciones o daños derivados del uso de Verbbe o del servidor self-hosted.</p>
+          <p>Estas condiciones pueden actualizarse en nuevas versiones de la app. El uso continuado implica la aceptación de la versión vigente, publicada en esta URL.</p>
+        </div>
+        <div class="lang-en">
+          <p>By using Verbbe you accept these terms.</p>
+
+          <h2>What Verbbe is</h2>
+          <p>Verbbe is for organizing and playing audio files that you link from Files or that a self-hosted Verbbe server indexes on a machine you run. It is not a store, it does not license songs, and it does not operate a commercial streaming catalog. It does not connect to Apple Music, YouTube, Spotify, SoundCloud, or similar services to download or stream their catalogs.</p>
+
+          <h2>Your files and rights</h2>
+          <p>You are responsible for having the right to use the files you play, both on the iPhone and on the server. Verbbe does not review or clear the content of your library. If you do not have those rights, do not use the app to play them.</p>
+
+          <h2>Optional server</h2>
+          <p>The server is software you install (for example with Docker) on your PC or network. You choose the URL, accounts, and music folders. The developer does not host that server. You are responsible for its security, who you give access to, and that it only indexes files you may use.</p>
+          <p>You can keep it on your Wi-Fi only, or publish it as an HTTPS link (Tailscale Funnel on the computer). That link is public; anyone who has it reaches the sign-in screen. The phone only needs Verbbe. You are responsible for passwords and who you share it with.</p>
+          <p>Remote playback streams from your machine to your iPhone. It is not a developer-operated streaming service and not access to third-party catalogs.</p>
+
+          <h2>Accounts</h2>
+          <p>No account is required for the local library. If you create the server admin or sign in, that account lives on your server. The administrator can delete other users in the app. Signing out on the iPhone does not delete music on the server.</p>
+
+          <h2>How it works</h2>
+          <p>Verbbe doesn’t guarantee that every file, tag, cover, or lyric will be read correctly. The result depends on how your files are tagged and on whether the iPhone can reach the server.</p>
+          <p>If you unlink or empty a linked folder, that folder’s songs disappear from the local library.</p>
+
+          <h2>Personal use</h2>
+          <p>The app is provided as is, for personal use. To the extent permitted by law, the developer isn’t liable for lost files, interruptions, or damage arising from the use of Verbbe or the self-hosted server.</p>
+          <p>These terms may be updated in new versions of the app. Continued use means you accept the current version published at this URL.</p>
+        </div>
+        <p class="updated">
+          <span class="lang-es">Actualizado el 20 de agosto de 2026.</span>
+          <span class="lang-en">Updated 20 August 2026.</span>
+        </p>
+      </article>
+    </div>
+    <script src="assets/app.js"></script>
+  </body>
+</html>

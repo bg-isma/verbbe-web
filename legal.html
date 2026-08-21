@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#121113" />
+    <meta name="color-scheme" content="dark" />
+    <title>Verbbe — Legal Notice</title>
+    <meta name="description" content="Legal notice of Verbbe." />
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+    <script>
+      (function () {
+        var q = new URLSearchParams(location.search).get("lang");
+        var s = null;
+        try {
+          s = localStorage.getItem("verbbe.lang");
+        } catch (_) {}
+        var n = (navigator.language || "").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+        var lang = q === "es" || q === "en" ? q : s === "es" || s === "en" ? s : n;
+        document.documentElement.lang = lang;
+        document.documentElement.dataset.lang = lang;
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="doc-wrap">
+      <header class="nav">
+        <a class="back" href="index.html">
+          <span class="lang-es visually-hidden">Atrás</span>
+          <span class="lang-en visually-hidden">Back</span>
+          <svg viewBox="0 0 17 16" fill="none" aria-hidden="true">
+            <path d="M10.52 3.5L5.9 8l4.62 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <h1>
+          <span class="lang-es">Aviso legal</span>
+          <span class="lang-en">Legal notice</span>
+        </h1>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" data-lang-btn="es">ES</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+      </header>
+
+      <article class="doc">
+        <div class="lang-es">
+          <p>Verbbe es una aplicación de reproducción de música desarrollada por bgisma.</p>
+          <p>Contacto y código: <a href="https://github.com/bg-isma">https://github.com/bg-isma</a></p>
+          <p>Verbbe no es una tienda de música ni un servicio comercial de streaming. No licencia, aloja ni distribuye canciones, y no ofrece un catálogo propio. Tú aportas los archivos que ya tienes en tu dispositivo o en un servidor que tú administras. La reproducción remota, si la usas, sale de esa máquina hacia tu iPhone; no es acceso a Apple Music, YouTube, Spotify ni otros catálogos de terceros.</p>
+          <p>Las marcas, nombres de artistas, álbumes y sellos que puedan aparecer en metadatos o carátulas pertenecen a sus respectivos titulares. Los formatos de audio citados (MP3, M4A, AAC, WAV, AIFF, FLAC) son denominaciones de terceros. Verbbe no está afiliada a Apple, Spotify ni a esos titulares.</p>
+          <p>Este aviso tiene carácter informativo y no constituye asesoramiento legal.</p>
+        </div>
+        <div class="lang-en">
+          <p>Verbbe is a music playback app developed by bgisma.</p>
+          <p>Contact and source: <a href="https://github.com/bg-isma">https://github.com/bg-isma</a></p>
+          <p>Verbbe is not a music store or a commercial streaming service. It doesn’t license, host, or distribute songs, and it does not offer its own catalog. You provide the files you already have on your device or on a server you run. Remote playback, if you use it, comes from that machine to your iPhone; it is not access to Apple Music, YouTube, Spotify, or other third-party catalogs.</p>
+          <p>Trademarks, artist names, albums, and labels that may appear in metadata or artwork belong to their respective owners. The audio formats mentioned (MP3, M4A, AAC, WAV, AIFF, FLAC) are third-party designations. Verbbe is not affiliated with Apple, Spotify, or those rights holders.</p>
+          <p>This notice is informational and is not legal advice.</p>
+        </div>
+        <p class="updated">
+          <span class="lang-es">Actualizado el 20 de agosto de 2026.</span>
+          <span class="lang-en">Updated 20 August 2026.</span>
+        </p>
+      </article>
+    </div>
+    <script src="assets/app.js"></script>
+  </body>
+</html>

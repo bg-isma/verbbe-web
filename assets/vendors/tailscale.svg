@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+  <!-- Official Tailscale mark: 3×3 dots, inverted T in black -->
+  <circle cx="5.2" cy="5.2" r="2.15" fill="#C8C8C8"/>
+  <circle cx="12" cy="5.2" r="2.15" fill="#C8C8C8"/>
+  <circle cx="18.8" cy="5.2" r="2.15" fill="#C8C8C8"/>
+  <circle cx="5.2" cy="12" r="2.15" fill="#111111"/>
+  <circle cx="12" cy="12" r="2.15" fill="#111111"/>
+  <circle cx="18.8" cy="12" r="2.15" fill="#111111"/>
+  <circle cx="5.2" cy="18.8" r="2.15" fill="#C8C8C8"/>
+  <circle cx="12" cy="18.8" r="2.15" fill="#111111"/>
+  <circle cx="18.8" cy="18.8" r="2.15" fill="#C8C8C8"/>
+</svg>

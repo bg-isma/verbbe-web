@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#121113" />
+    <meta name="color-scheme" content="dark" />
+    <title>Verbbe — Apoyar artistas</title>
+    <meta
+      name="description"
+      content="Lista pública de artistas. La app cruza el nombre de tus archivos con tiendas y webs oficiales. Si eres independiente, envía tu nombre y un enlace."
+    />
+    <link rel="canonical" href="https://verbbe.com/artists.html" />
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/app-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://verbbe.com/artists.html" />
+    <meta property="og:title" content="Verbbe — Apoyar artistas" />
+    <meta
+      property="og:description"
+      content="La app detecta el nombre del artista en tus archivos y muestra su tienda o web. Envía un enlace si falta el tuyo."
+    />
+    <meta property="og:image" content="https://verbbe.com/assets/app-icon.png" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+    <script>
+      (function () {
+        var q = new URLSearchParams(location.search).get("lang");
+        var s = null;
+        try {
+          s = localStorage.getItem("verbbe.lang");
+        } catch (_) {}
+        var n = (navigator.language || "").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+        var lang = q === "es" || q === "en" ? q : s === "es" || s === "en" ? s : n;
+        document.documentElement.lang = lang;
+        document.documentElement.dataset.lang = lang;
+      })();
+    </script>
+  </head>
+  <body class="site artists-body">
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="site-bar">
+      <a class="brand" href="index.html">
+        <img src="assets/logo.svg" alt="" />
+        <span>Verbbe</span>
+      </a>
+      <nav class="site-links" aria-label="Verbbe">
+        <a href="index.html#server"><span class="lang-es">Servidor</span><span class="lang-en">Server</span></a>
+        <a href="index.html#app"><span class="lang-es">App</span><span class="lang-en">App</span></a>
+        <a href="artists.html" aria-current="page"><span class="lang-es">Artistas</span><span class="lang-en">Artists</span></a>
+        <a href="index.html#legal"><span class="lang-es">Legal</span><span class="lang-en">Legal</span></a>
+      </nav>
+      <div class="site-end">
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" data-lang-btn="es">ES</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+        <a class="pill-btn magnet" href="#enviar">
+          <span class="lang-es">Enviar enlace</span>
+          <span class="lang-en">Submit a link</span>
+        </a>
+      </div>
+    </header>
+
+    <main id="main" class="artists-main">
+      <section class="artists-hero">
+        <div class="artists-hero-visual">
+          <div class="sale-stage" data-sale data-tilt>
+            <img class="sale-cover-back" src="assets/covers/papel-de-arroz.png" alt="" />
+            <article class="sale-card">
+              <img class="sale-cover" src="assets/covers/ventanas-al-mar.png" alt="" />
+              <div class="sale-body">
+                <p class="sale-kicker lang-es">Su tienda</p>
+                <p class="sale-kicker lang-en">Their store</p>
+                <p class="sale-title">Ventanas al mar</p>
+                <p class="sale-artist">Nilo Marés</p>
+                <button type="button" class="pill-btn sale-buy" data-sale-buy>
+                  <span class="lang-es">Comprar</span>
+                  <span class="lang-en">Buy</span>
+                </button>
+              </div>
+              <div class="sale-split" aria-hidden="true">
+                <span class="sale-token" data-sale-token>€</span>
+                <div class="sale-row is-artist">
+                  <span class="lang-es">Al artista</span>
+                  <span class="lang-en">To the artist</span>
+                  <b>100%</b>
+                </div>
+                <div class="sale-row is-cut">
+                  <span>Verbbe</span>
+                  <b>0%</b>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div class="artists-hero-copy">
+          <p class="kicker lang-es">Apoyar artistas</p>
+          <p class="kicker lang-en">Support artists</p>
+          <h1 class="lang-es">Si compras en su tienda,<br />el dinero va a ellos.</h1>
+          <h1 class="lang-en">If you buy from their store,<br />the money goes to them.</h1>
+          <p class="lede lang-es">En el player, Verbbe cruza el artista de tus archivos con esta lista y muestra la tienda, el merch o la web. Verbbe no cobra.</p>
+          <p class="lede lang-en">In the player, Verbbe matches the artist in your files against this list and shows the store, merch, or site. Verbbe doesn’t take a cut.</p>
+        </div>
+      </section>
+
+      <section class="artists-how" id="como">
+        <div class="artists-how-copy">
+          <p class="kicker lang-es">Para artistas</p>
+          <p class="kicker lang-en">For artists</p>
+          <h2 class="lang-es">Tu nombre<br />y un enlace oficial.</h2>
+          <h2 class="lang-en">Your name<br />and an official link.</h2>
+          <p class="lede lang-es">Si eres artista — o conoces su tienda — envía el nombre y un https. Lo revisamos a mano. Verbbe no se queda con nada de la venta.</p>
+          <p class="lede lang-en">If you’re an artist — or you know their store — send the name and an https link. We review it by hand. Verbbe doesn’t take a cut of the sale.</p>
+
+          <ol class="artists-steps">
+            <li>
+              <span class="lang-es"><strong>El nombre.</strong> Tal como aparece en tus canciones, sin cambios.</span>
+              <span class="lang-en"><strong>The name.</strong> Exactly as it appears on your tracks, no changes.</span>
+            </li>
+            <li>
+              <span class="lang-es"><strong>El enlace.</strong> Un https a tu tienda o web. Merch, si lo hay.</span>
+              <span class="lang-en"><strong>The link.</strong> An https URL to your store or site. Merch, if you have it.</span>
+            </li>
+            <li>
+              <span class="lang-es"><strong>La revisión.</strong> Lo miramos a mano. Si encaja, sale en la lista y en el player.</span>
+              <span class="lang-en"><strong>The review.</strong> We check it by hand. If it fits, it goes on the list and in the player.</span>
+            </li>
+          </ol>
+
+          <a class="pill-btn" href="#enviar">
+            <span class="lang-es">Enviar mi enlace</span>
+            <span class="lang-en">Submit my link</span>
+          </a>
+        </div>
+
+        <div class="artists-phones" aria-hidden="true">
+          <figure class="player-phone">
+            <div class="player-mock">
+              <div class="player-mock-top">
+                <span class="player-chrome-btn">
+                  <svg viewBox="0 0 16 16"><path d="M3.5 6l4.5 4.5L12.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                </span>
+                <span>
+                  <small class="lang-es">Reproduciendo álbum</small>
+                  <small class="lang-en">Playing album</small>
+                  <b>Ventanas al mar</b>
+                </span>
+                <span class="player-chrome-btn">
+                  <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.15"/><circle cx="8" cy="8" r="1.15"/><circle cx="12.5" cy="8" r="1.15"/></svg>
+                </span>
+              </div>
+              <img class="player-mock-art" src="assets/covers/ventanas-al-mar.png" alt="" />
+              <div class="player-mock-track">
+                <strong>Luz de medianoche</strong>
+                <span>Nilo Marés</span>
+              </div>
+              <section class="player-support">
+                <header>
+                  <h3 class="lang-es">Apoyar al artista</h3>
+                  <h3 class="lang-en">Support the artist</h3>
+                  <span class="player-reload">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M13.2 8A5.2 5.2 0 1 1 11.4 4.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.2 2.6v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </header>
+                <div class="player-support-card">
+                  <p class="player-support-name">Nilo Marés</p>
+                  <p class="player-support-blurb lang-es">Si compras en su tienda, el dinero va al artista o a su sello. Verbbe no cobra.</p>
+                  <p class="player-support-blurb lang-en">If you buy from their store, the money goes to the artist or their label. Verbbe doesn’t take a cut.</p>
+                  <div class="player-link">
+                    <span class="player-link-icon">
+                      <svg viewBox="0 0 16 16" fill="none"><path d="M4.2 5.3h7.6l-.7 7.2H4.9l-.7-7.2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6.2 5.3V4.2a1.8 1.8 0 0 1 3.6 0v1.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    </span>
+                    <span class="lang-es">Tienda</span>
+                    <span class="lang-en">Store</span>
+                    <span class="player-link-go">
+                      <svg viewBox="0 0 16 16" fill="none"><path d="M5 11L11 5M6.2 5H11v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <div class="player-link">
+                    <span class="player-link-icon">
+                      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.1" stroke="currentColor" stroke-width="1.3"/><path d="M2.9 8h10.2M8 2.9c1.5 1.7 2.2 3.4 2.2 5.1S9.5 11.4 8 13.1C6.5 11.4 5.8 9.7 5.8 8S6.5 4.6 8 2.9z" stroke="currentColor" stroke-width="1.3"/></svg>
+                    </span>
+                    <span class="lang-es">Web</span>
+                    <span class="lang-en">Site</span>
+                    <span class="player-link-go">
+                      <svg viewBox="0 0 16 16" fill="none"><path d="M5 11L11 5M6.2 5H11v4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <p class="player-support-submit lang-es">Enviar enlaces</p>
+                  <p class="player-support-submit lang-en">Submit links</p>
+                </div>
+              </section>
+            </div>
+            <figcaption>
+              <span class="lang-es">Con enlaces verificados</span>
+              <span class="lang-en">With verified links</span>
+            </figcaption>
+          </figure>
+
+          <figure class="player-phone is-empty">
+            <div class="player-mock">
+              <div class="player-mock-top">
+                <span class="player-chrome-btn">
+                  <svg viewBox="0 0 16 16"><path d="M3.5 6l4.5 4.5L12.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                </span>
+                <span>
+                  <small class="lang-es">Reproduciendo álbum</small>
+                  <small class="lang-en">Playing album</small>
+                  <b>Sal y estática</b>
+                </span>
+                <span class="player-chrome-btn">
+                  <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.15"/><circle cx="8" cy="8" r="1.15"/><circle cx="12.5" cy="8" r="1.15"/></svg>
+                </span>
+              </div>
+              <img class="player-mock-art" src="assets/covers/sal-y-estatica.png" alt="" />
+              <div class="player-mock-track">
+                <strong>Frecuencia verde</strong>
+                <span>Onda Norte</span>
+              </div>
+              <section class="player-support">
+                <header>
+                  <h3 class="lang-es">Apoyar al artista</h3>
+                  <h3 class="lang-en">Support the artist</h3>
+                  <span class="player-reload">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M13.2 8A5.2 5.2 0 1 1 11.4 4.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.2 2.6v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </header>
+                <div class="player-support-card">
+                  <p class="player-support-name">Onda Norte</p>
+                  <p class="player-support-blurb lang-es">Todavía no hay tienda verificada para este artista. Si conoces un enlace oficial, envíalo.</p>
+                  <p class="player-support-blurb lang-en">There’s no verified store for this artist yet. If you know an official link, send it in.</p>
+                  <p class="player-support-submit lang-es">Enviar enlaces</p>
+                  <p class="player-support-submit lang-en">Submit links</p>
+                </div>
+              </section>
+            </div>
+            <figcaption>
+              <span class="lang-es">Sin tienda aún</span>
+              <span class="lang-en">No store yet</span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="artists-directory" id="lista">
+        <div class="artists-directory-head">
+          <p class="kicker lang-es">La lista</p>
+          <p class="kicker lang-en">The list</p>
+          <h2 class="lang-es">Los mismos nombres que usa la app.</h2>
+          <h2 class="lang-en">The same names the app uses.</h2>
+          <p class="lede lang-es">Si tu nombre no está, o está pero sin enlace, envíalo abajo. Tiene que coincidir con el tag de artista de tus canciones.</p>
+          <p class="lede lang-en">If your name isn’t here, or it is but without a link, send it below. It has to match the artist tag on your tracks.</p>
+        </div>
+
+        <label class="artists-search">
+          <span class="visually-hidden lang-es">Buscar artista</span>
+          <span class="visually-hidden lang-en">Search artist</span>
+          <input
+            id="artist-search"
+            type="search"
+            autocomplete="off"
+            spellcheck="false"
+            data-placeholder-es="Buscar artista"
+            data-placeholder-en="Search artist"
+          />
+        </label>
+        <div class="artists-toolbar">
+          <p class="artists-stats" id="artist-stats"></p>
+          <div class="artists-filters" role="group" aria-label="Filter">
+            <button type="button" class="artists-filter" data-filter="all" aria-pressed="true">
+              <span class="lang-es">Todos</span>
+              <span class="lang-en">All</span>
+            </button>
+            <button type="button" class="artists-filter" data-filter="links" aria-pressed="false">
+              <span class="lang-es">Con enlace</span>
+              <span class="lang-en">With a link</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="artists-list" id="list" aria-live="polite">
+        <div class="artists-grid" id="artist-grid"></div>
+        <p class="artists-empty" id="artist-empty" hidden>
+          <span class="lang-es">Nadie con ese nombre. Si conoces la tienda, envíala abajo.</span>
+          <span class="lang-en">Nobody by that name. If you know the store, send it in below.</span>
+        </p>
+        <div class="artists-more" id="artist-more" hidden>
+          <button type="button" class="pill-btn" id="artist-more-btn">
+            <span class="lang-es">Ver más</span>
+            <span class="lang-en">See more</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="artists-form-block" id="enviar">
+        <p class="kicker lang-es">Enviar enlaces</p>
+        <p class="kicker lang-en">Submit links</p>
+        <h2 class="lang-es">¿Eres artista, o falta una tienda?</h2>
+        <h2 class="lang-en">Are you an artist, or is a store missing?</h2>
+        <p class="lede lang-es">Pon el nombre como sale en tus archivos y un https oficial. Lo revisamos a mano antes de publicarlo. Verbbe no se queda con nada de la venta.</p>
+        <p class="lede lang-en">Use the name as it appears in your files and an official https link. We review it by hand before it goes live. Verbbe doesn’t take a cut of the sale.</p>
+        <a
+          class="pill-btn"
+          id="artist-form-link"
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfGwg5DFVhOQMZO1pNtcIV09MbeE12C663SO8bZIcOpp4iYbA/viewform"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <span class="lang-es">Abrir formulario</span>
+          <span class="lang-en">Open form</span>
+        </a>
+        <p class="artists-form-note lang-es">Se abre el formulario de Google. No hace falta cuenta de Verbbe.</p>
+        <p class="artists-form-note lang-en">Opens the Google Form. You don’t need a Verbbe account.</p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p class="footer">
+        <span class="lang-es">Lista en <a href="artists.json">artists.json</a> · <a href="privacy.html">Privacidad</a></span>
+        <span class="lang-en">List at <a href="artists.json">artists.json</a> · <a href="privacy.html">Privacy</a></span>
+      </p>
+    </footer>
+
+    <script src="assets/app.js"></script>
+    <script src="assets/site.js"></script>
+    <script src="assets/artists-data.js"></script>
+    <script src="assets/artists.js"></script>
+  </body>
+</html>
