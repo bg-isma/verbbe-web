@@ -5,6 +5,12 @@
 
   const pointer = { x: 0, y: 0 };
   const now = { x: 0, y: 0 };
+  const compact = window.matchMedia("(max-width: 900px)");
+  let amp = compact.matches ? 8 : 18;
+
+  compact.addEventListener("change", () => {
+    amp = compact.matches ? 8 : 18;
+  });
 
   window.addEventListener(
     "pointermove",
@@ -22,7 +28,7 @@
     now.y += (pointer.y - now.y) * 0.08;
     const x = Math.max(-1, Math.min(1, now.x));
     const y = Math.max(-1, Math.min(1, now.y));
-    fan.style.transform = "rotateY(" + x * 18 + "deg) rotateX(" + (10 - y * 8) + "deg)";
+    fan.style.transform = "rotateY(" + x * amp + "deg) rotateX(" + (8 - y * 6) + "deg)";
     requestAnimationFrame(tick);
   }
 

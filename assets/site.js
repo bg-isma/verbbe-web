@@ -5,6 +5,8 @@
   const commandEl = document.querySelector("[data-command]");
   const outputEl = document.querySelector("[data-output]");
   const copyBtn = document.querySelector("[data-copy]");
+  const bar = document.querySelector(".site-bar");
+  const navToggle = document.querySelector("[data-nav-toggle]");
   let method = "install";
   let os = /Mac/i.test(navigator.platform || "") ? "mac" : /Win/i.test(navigator.platform || "") ? "win" : "linux";
 
@@ -28,12 +30,12 @@
 
   function currentOutput() {
     return [
-      '<span class="c-dim">  music   ~/Music</span>',
-      '<span class="c-dim">  port    4747</span>',
-      "",
-      '<span class="c-dim">  Local    </span>http://127.0.0.1:4747',
-      '<span class="c-dim">  Wi-Fi    </span><span class="c-lime">http://192.168.1.42:4747</span>',
-    ].join("\n");
+      '<span class="c-dim">music   ~/Music</span>',
+      '<span class="c-dim">port    4747</span>',
+      '<span class="term-line"><span class="c-dim">Local</span><span class="term-url">http://127.0.0.1:4747</span></span>',
+      '<span class="term-line"><span class="c-dim">Home</span><span class="term-url">http://192.168.1.42:4747</span></span>',
+      '<span class="term-line"><span class="c-dim">Away</span><span class="term-url c-lime">https://verbbe.tailnet.ts.net</span></span>',
+    ].join("");
   }
 
   function renderCommand() {
@@ -112,7 +114,7 @@
     });
   }
 
-  if (!reduce) {
+  if (!reduce && fine) {
     document.querySelectorAll(".magnet").forEach((btn) => {
       btn.addEventListener("pointermove", (event) => {
         const rect = btn.getBoundingClientRect();
@@ -123,6 +125,27 @@
       btn.addEventListener("pointerleave", () => {
         btn.style.transform = "";
       });
+    });
+  }
+
+  function setNavOpen(open) {
+    if (!bar || !navToggle) return;
+    bar.classList.toggle("is-open", open);
+    navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  if (bar && navToggle) {
+    navToggle.addEventListener("click", () => {
+      setNavOpen(!bar.classList.contains("is-open"));
+    });
+    bar.querySelectorAll(".site-links a").forEach((link) => {
+      link.addEventListener("click", () => setNavOpen(false));
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setNavOpen(false);
+    });
+    window.matchMedia("(min-width: 901px)").addEventListener("change", (event) => {
+      if (event.matches) setNavOpen(false);
     });
   }
 })();
