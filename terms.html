@@ -13,10 +13,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/site.css" />
     <script>
       (function () {
         var q = new URLSearchParams(location.search).get("lang");
@@ -31,8 +32,60 @@
       })();
     </script>
   </head>
-  <body>
-    <div class="doc-wrap">
+  <body class="site yv is-doc">
+    <a class="skip" href="#doc">
+      <span class="lang-es">Saltar al contenido</span>
+      <span class="lang-en">Skip to content</span>
+    </a>
+    <header class="yv-bar">
+      <button type="button" class="yv-menu-btn" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+        <span class="lang-es">Menú</span>
+        <span class="lang-en">Menu</span>
+        <svg viewBox="0 0 18 18" aria-hidden="true">
+          <path class="nav-toggle-open" d="M3 5h12M3 9h12M3 13h12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path class="nav-toggle-close" d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <a class="yv-logo" href="index.html">
+        <img src="assets/logo.svg" width="30" height="22" alt="" />
+        <span translate="no">Verbbe</span>
+      </a>
+      <div class="yv-end">
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" data-lang-btn="es">ES</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+        <a class="yv-cta" href="https://apps.apple.com/app/verbbe" rel="noopener">App Store</a>
+      </div>
+    </header>
+    <div class="yv-overlay" id="site-nav" data-menu aria-hidden="true">
+      <button type="button" class="yv-overlay-close" data-nav-close>
+        <svg viewBox="0 0 18 18" aria-hidden="true">
+          <path d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span class="lang-es">Cerrar</span>
+        <span class="lang-en">Close</span>
+      </button>
+      <div class="yv-overlay-inner">
+        <p class="yv-overlay-kicker">Verbbe</p>
+        <div class="lang-switch yv-overlay-lang" role="group" aria-label="Language">
+          <button type="button" data-lang-btn="es">ES</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+        <nav class="yv-overlay-nav" aria-label="Verbbe">
+          <a href="index.html#app" style="--i:0"><span class="lang-es">App</span><span class="lang-en">App</span></a>
+          <a href="index.html#server" style="--i:1"><span class="lang-es">Servidor</span><span class="lang-en">Server</span></a>
+          <a href="index.html#verbena" style="--i:2" translate="no">Verbena</a>
+          <a href="artists.html" style="--i:3"><span class="lang-es">Artistas</span><span class="lang-en">Artists</span></a>
+          <a href="terms.html" style="--i:4" aria-current="page"><span class="lang-es">Legal</span><span class="lang-en">Legal</span></a>
+        </nav>
+        <a class="yv-overlay-cta" href="index.html">
+          <span class="lang-es">Volver a inicio</span>
+          <span class="lang-en">Back home</span>
+        </a>
+      </div>
+    </div>
+    <div class="doc-wrap" id="doc">
       <header class="nav">
         <a class="back" href="index.html">
           <span class="lang-es visually-hidden">Atrás</span>
@@ -45,10 +98,7 @@
           <span class="lang-es">Términos y condiciones</span>
           <span class="lang-en">Terms and conditions</span>
         </h1>
-        <div class="lang-switch" role="group" aria-label="Language">
-          <button type="button" data-lang-btn="es">ES</button>
-          <button type="button" data-lang-btn="en">EN</button>
-        </div>
+        <span></span>
       </header>
 
       <article class="doc">
@@ -115,5 +165,6 @@
       </article>
     </div>
     <script src="assets/app.js"></script>
+    <script src="assets/site.js"></script>
   </body>
 </html>

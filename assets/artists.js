@@ -6,13 +6,87 @@
 
   const grid = document.getElementById("artist-grid");
   const empty = document.getElementById("artist-empty");
-  const stats = document.getElementById("artist-stats");
   const search = document.getElementById("artist-search");
   const moreWrap = document.getElementById("artist-more");
   const moreBtn = document.getElementById("artist-more-btn");
   const formLink = document.getElementById("artist-form-link");
   const filterButtons = document.querySelectorAll("[data-filter]");
 
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let cardIo = null;
+  let flushQueued = false;
+
+  function showCards(cards) {
+    cards.forEach((card, i) => {
+      card.style.setProperty("--i", String(Math.min(i, 7)));
+      card.classList.add("is-in");
+      if (cardIo) cardIo.unobserve(card);
+    });
+  }
+
+  function visiblePendingCards() {
+    if (!grid) return [];
+    const vh = window.innerHeight;
+    return [...grid.querySelectorAll(".artist-card:not(.is-in)")].filter((card) => {
+      const rect = card.getBoundingClientRect();
+      return rect.bottom > 48 && rect.top < vh - 48;
+    });
+  }
+
+  function flushVisibleCards() {
+    flushQueued = false;
+    const ready = visiblePendingCards();
+    if (ready.length) showCards(ready);
+  }
+
+  function queueFlush() {
+    if (flushQueued || reduceMotion) return;
+    flushQueued = true;
+    requestAnimationFrame(flushVisibleCards);
+  }
+
+  if (!reduceMotion && "IntersectionObserver" in window) {
+    cardIo = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => {
+            const pos = a.target.compareDocumentPosition(b.target);
+            if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+            if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+            return 0;
+          })
+          .map((entry) => entry.target);
+        if (visible.length) showCards(visible);
+      },
+      { threshold: 0.05, rootMargin: "0px 0px -6% 0px" }
+    );
+    window.addEventListener("scroll", queueFlush, { passive: true, capture: true });
+    window.addEventListener("resize", queueFlush);
+    const listSection = document.querySelector(".artists-list");
+    if (listSection && "MutationObserver" in window) {
+      new MutationObserver(queueFlush).observe(listSection, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+    }
+  }
+
+  function revealCards() {
+    if (!grid) return;
+    const pending = [...grid.querySelectorAll(".artist-card:not(.is-in)")];
+    if (reduceMotion || !cardIo) {
+      pending.forEach((card) => card.classList.add("is-in"));
+      return;
+    }
+    const ready = visiblePendingCards();
+    const readySet = new Set(ready);
+    pending.forEach((card) => {
+      if (!readySet.has(card)) cardIo.observe(card);
+    });
+    if (ready.length) requestAnimationFrame(() => showCards(ready));
+    requestAnimationFrame(queueFlush);
+  }
   let catalog = [];
   let formURL = FALLBACK_FORM;
   let filter = "all";
@@ -80,15 +154,6 @@
     anchor.target = "_blank";
   }
 
-  function renderStats(shown, matching, withLinks) {
-    const total = catalog.length;
-    if (lang() === "en") {
-      stats.textContent = `${withLinks} with a link · ${shown} of ${matching} shown · ${total} in the list`;
-    } else {
-      stats.textContent = `${withLinks} con enlace · ${shown} de ${matching} visibles · ${total} en la lista`;
-    }
-  }
-
   function filteredRows(query) {
     const q = fold(query);
     return catalog
@@ -144,20 +209,22 @@
     return card;
   }
 
-  function render(query) {
+  function render(query, mode) {
     const rows = filteredRows(query);
     const shown = rows.slice(0, visibleCount);
-    const fragment = document.createDocumentFragment();
-    shown.forEach((entry) => fragment.appendChild(cardFor(entry)));
-    grid.replaceChildren(fragment);
 
+    if (mode === "more") {
+      const from = grid.children.length;
+      shown.slice(from).forEach((entry) => grid.appendChild(cardFor(entry)));
+    } else {
+      const fragment = document.createDocumentFragment();
+      shown.forEach((entry) => fragment.appendChild(cardFor(entry)));
+      grid.replaceChildren(fragment);
+    }
+
+    revealCards();
     empty.hidden = rows.length > 0;
-    if (moreWrap) moreWrap.hidden = shown.length >= rows.length;
-    renderStats(
-      shown.length,
-      rows.length,
-      catalog.filter((entry) => liveLinks(entry).length > 0).length
-    );
+    if (moreWrap) moreWrap.hidden = rows.length === 0 || shown.length >= rows.length;
   }
 
   function setPlaceholder() {
@@ -196,7 +263,7 @@
   if (moreBtn) {
     moreBtn.addEventListener("click", () => {
       visibleCount += PAGE_SIZE;
-      render(search ? search.value : "");
+      render(search ? search.value : "", "more");
     });
   }
 
@@ -231,7 +298,6 @@
       if (embedded) return;
       catalog = [];
       render("");
-      stats.textContent = lang() === "en" ? "Couldn’t load the list." : "No se pudo cargar la lista.";
     });
 })();
 

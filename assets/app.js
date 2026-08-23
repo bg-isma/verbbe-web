@@ -17,6 +17,13 @@
     document.querySelectorAll("[data-lang-btn]").forEach((btn) => {
       btn.setAttribute("aria-pressed", btn.dataset.langBtn === next ? "true" : "false");
     });
+    try {
+      const here = new URL(location.href);
+      here.searchParams.set("lang", next);
+      history.replaceState(null, "", here);
+    } catch (_) {
+      /* ignore */
+    }
     document.querySelectorAll('a[href$=".html"], a[href*=".html?"]').forEach((anchor) => {
       try {
         const url = new URL(anchor.getAttribute("href"), location.href);

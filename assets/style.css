@@ -356,14 +356,7 @@ body.site.has-cursor button {
 }
 
 body.site .grain {
-  display: block;
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 70;
-  opacity: 0.045;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  display: none;
 }
 
 .cursor,
@@ -513,7 +506,6 @@ body.site.has-cursor .cursor-dot {
   border-radius: 999px;
   border: 0;
   white-space: nowrap;
-  will-change: transform;
 }
 
 .hero-home {
@@ -670,7 +662,7 @@ body.site.has-cursor .cursor-dot {
   height: 640px;
   perspective: 1400px;
   transform-style: preserve-3d;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .phone {
@@ -874,7 +866,9 @@ body.site.has-cursor .cursor-dot {
   padding: 20px;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+  min-width: 0;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .install-card:hover {
@@ -1109,6 +1103,7 @@ body.site.has-cursor .cursor-dot {
 .store.soon {
   opacity: 0.55;
   pointer-events: none;
+  cursor: default;
 }
 
 .store svg {
@@ -1133,7 +1128,7 @@ body.site.has-cursor .cursor-dot {
 .site-foot {
   width: var(--site);
   margin: 0 auto;
-  padding: 20px 0 calc(80px + env(safe-area-inset-bottom, 0px));
+  padding: 20px 0 calc(112px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (max-width: 900px) {
@@ -1233,6 +1228,7 @@ body.site.has-cursor .cursor-dot {
   .site-bar.is-open .site-links a:nth-child(2) { transition-delay: 0.1s; }
   .site-bar.is-open .site-links a:nth-child(3) { transition-delay: 0.14s; }
   .site-bar.is-open .site-links a:nth-child(4) { transition-delay: 0.18s; }
+  .site-bar.is-open .site-links a:nth-child(5) { transition-delay: 0.22s; }
 
   .site-bar.is-open .site-links a:hover,
   .site-bar.is-open .site-links a[aria-current="page"] {
@@ -2034,7 +2030,7 @@ body.site.has-cursor .cursor-dot {
 }
 
 .artists-list {
-  margin-top: 28px;
+  margin-top: 0;
 }
 
 .artists-grid {
@@ -2309,6 +2305,10 @@ body.site.has-cursor .cursor-dot {
   display: flex;
   justify-content: center;
   margin-top: 22px;
+}
+
+.artists-more[hidden] {
+  display: none;
 }
 
 .artists-more .pill-btn {
