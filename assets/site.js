@@ -1,97 +1,182 @@
 (function () {
   document.documentElement.classList.add("js");
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const terminal = document.querySelector("[data-terminal]");
-  const commandEl = document.querySelector("[data-command]");
-  const outputEl = document.querySelector("[data-output]");
-  const copyBtn = document.querySelector("[data-copy]");
   const overlay = document.querySelector("[data-menu]");
   const navToggle = document.querySelector("[data-nav-toggle]");
-  let method = "install";
-  let os = /Mac/i.test(navigator.platform || "") ? "mac" : /Win/i.test(navigator.platform || "") ? "win" : "linux";
+
+  function defaultOs() {
+    return /Mac/i.test(navigator.platform || "") ? "mac" : /Win/i.test(navigator.platform || "") ? "win" : "linux";
+  }
 
   function musicPath(osName) {
     return osName === "win" ? "%USERPROFILE%\\Music" : "~/Music";
   }
 
-  function currentCommand() {
+  function dataPath(osName) {
+    return osName === "win" ? "%USERPROFILE%\\.verbbe" : "~/.verbbe";
+  }
+
+  function bin(method) {
+    return method === "cli" ? "npx verbbe" : "verbbe";
+  }
+
+  function installCommand(method, os) {
     const path = musicPath(os);
     if (method === "install" && os !== "win") {
       return `curl -fsSL https://verbbe.com/install.sh | bash\nverbbe start --music ${path}`;
     }
     if (method === "docker") {
       if (os === "win") {
-        return `git clone https://github.com/bg-isma/Verbbe.git\ncd Verbbe\\server\nset VERBBE_MUSIC=${path}\ndocker compose up --build`;
+        return `git clone https://github.com/bg-isma/verbbe.git\ncd verbbe\\server\nset MUSIC_LOCATION=${path}\nset VERBBE_MUSIC=${path}\nset DB_PASSWORD=changeme\ndocker compose up --build`;
       }
-      return `git clone https://github.com/bg-isma/Verbbe.git\ncd Verbbe/server\nVERBBE_MUSIC=${path} docker compose up --build`;
+      return `git clone https://github.com/bg-isma/verbbe.git\ncd verbbe/server\nDB_PASSWORD=$(openssl rand -hex 24) MUSIC_LOCATION=${path} VERBBE_MUSIC=${path} docker compose up --build`;
     }
     return `npx verbbe start --music ${path}`;
   }
 
-  function currentOutput() {
+  function installOutput(os) {
+    const path = musicPath(os);
+    const data = dataPath(os);
     return [
-      '<span class="c-dim">music   ~/Music</span>',
-      '<span class="c-dim">port    4747</span>',
+      `<span class="c-dim">music   ${path}</span>`,
+      `<span class="c-dim">data    ${data}</span>`,
+      `<span class="c-dim">stack   postgres · redis · api · worker</span>`,
+      `<span class="c-dim">mode    lan</span>`,
       '<span class="term-line"><span class="c-dim">Local</span><span class="term-url">http://127.0.0.1:4747</span></span>',
       '<span class="term-line"><span class="c-dim">Home</span><span class="term-url">http://192.168.1.42:4747</span></span>',
-      '<span class="term-line"><span class="c-dim">Away</span><span class="term-url c-lime">https://verbbe.tailnet.ts.net</span></span>',
     ].join("");
   }
 
-  function renderCommand() {
-    if (commandEl) {
-      commandEl.textContent = currentCommand()
-        .split("\n")
-        .map((line) => `$ ${line}`)
-        .join("\n");
+  function removeCommand(method, os, action) {
+    if (method === "docker") {
+      const cd = os === "win" ? "cd verbbe\\server" : "cd verbbe/server";
+      if (action === "stop") return `${cd}\ndocker compose stop`;
+      if (action === "keep") return `${cd}\ndocker compose down`;
+      return os === "win" ? `${cd}\ndocker compose down -v\nrmdir /s /q data` : `${cd}\ndocker compose down -v\nrm -rf data`;
     }
-    if (outputEl) outputEl.innerHTML = currentOutput();
+    const tool = bin(method);
+    if (action === "stop") return `${tool} stop`;
+    if (action === "keep") return `${tool} uninstall --keep-data`;
+    return `${tool} uninstall`;
   }
 
-  if (terminal) {
-    terminal.querySelectorAll("[data-os]").forEach((btn) => {
-      btn.setAttribute("aria-selected", btn.dataset.os === os ? "true" : "false");
-    });
-    terminal.addEventListener("click", (event) => {
+  function removeOutput(os, action) {
+    const data = dataPath(os);
+    if (action === "stop") {
+      return [
+        '<span class="c-dim">stopped</span>',
+        `<span class="c-dim">data    ${data} still there</span>`,
+        '<span class="term-line"><span class="term-url c-lime">Music files on disk were not touched</span></span>',
+      ].join("");
+    }
+    if (action === "keep") {
+      return [
+        '<span class="c-dim">uninstalled</span>',
+        `<span class="c-dim">catalog kept in ${data}</span>`,
+        '<span class="term-line"><span class="term-url c-lime">Music files on disk were not touched</span></span>',
+      ].join("");
+    }
+    return [
+      '<span class="c-dim">uninstalled</span>',
+      `<span class="c-dim">catalog removed from ${data}</span>`,
+      '<span class="term-line"><span class="term-url c-lime">Music files on disk were not touched</span></span>',
+    ].join("");
+  }
+
+  function bindTerminal(root) {
+    const kind = root.getAttribute("data-terminal") || "install";
+    const commandEl = root.querySelector("[data-command]");
+    const outputEl = root.querySelector("[data-output]");
+    const copyBtn = root.querySelector("[data-copy]");
+    let method = "install";
+    let os = defaultOs();
+    let action = "uninstall";
+
+    function commandText() {
+      return kind === "remove" ? removeCommand(method, os, action) : installCommand(method, os);
+    }
+
+    function render() {
+      if (commandEl) {
+        commandEl.textContent = commandText()
+          .split("\n")
+          .map((line) => `$ ${line}`)
+          .join("\n");
+      }
+      if (outputEl) {
+        outputEl.innerHTML = kind === "remove" ? removeOutput(os, action) : installOutput(os);
+      }
+      root.querySelectorAll("[data-os]").forEach((btn) => {
+        btn.setAttribute("aria-selected", btn.dataset.os === os ? "true" : "false");
+      });
+    }
+
+    root.addEventListener("click", (event) => {
       const methodBtn = event.target.closest("[data-method]");
       const osBtn = event.target.closest("[data-os]");
-      if (methodBtn) {
+      const actionBtn = event.target.closest("[data-action]");
+      if (methodBtn && root.contains(methodBtn)) {
         method = methodBtn.dataset.method;
-        terminal.querySelectorAll("[data-method]").forEach((btn) => {
+        root.querySelectorAll("[data-method]").forEach((btn) => {
           btn.setAttribute("aria-selected", btn === methodBtn ? "true" : "false");
         });
-        renderCommand();
+        render();
       }
-      if (osBtn) {
+      if (osBtn && root.contains(osBtn)) {
         os = osBtn.dataset.os;
-        terminal.querySelectorAll("[data-os]").forEach((btn) => {
-          btn.setAttribute("aria-selected", btn === osBtn ? "true" : "false");
+        render();
+      }
+      if (actionBtn && root.contains(actionBtn)) {
+        action = actionBtn.dataset.action;
+        root.querySelectorAll("[data-action]").forEach((btn) => {
+          btn.setAttribute("aria-selected", btn === actionBtn ? "true" : "false");
         });
-        renderCommand();
+        render();
       }
     });
-    renderCommand();
+
+    if (copyBtn && commandEl) {
+      copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(commandText());
+          copyBtn.classList.add("is-done");
+          const es = copyBtn.querySelector(".lang-es");
+          const en = copyBtn.querySelector(".lang-en");
+          if (es) es.textContent = "Copiado";
+          if (en) en.textContent = "Copied";
+          setTimeout(() => {
+            copyBtn.classList.remove("is-done");
+            if (es) es.textContent = "Copiar";
+            if (en) en.textContent = "Copy";
+          }, 1400);
+        } catch (_) {}
+      });
+    }
+
+    if (kind === "install") {
+      const params = new URLSearchParams(location.search);
+      const presetMethod = params.get("method");
+      const presetOs = params.get("os");
+      if (presetMethod === "cli" || presetMethod === "install" || presetMethod === "docker") {
+        method = presetMethod;
+        root.querySelectorAll("[data-method]").forEach((btn) => {
+          btn.setAttribute("aria-selected", btn.dataset.method === method ? "true" : "false");
+        });
+      }
+      if (presetOs === "mac" || presetOs === "linux" || presetOs === "win") os = presetOs;
+      root.addEventListener("click", () => {
+        const url = new URL(location.href);
+        url.searchParams.set("method", method);
+        url.searchParams.set("os", os);
+        history.replaceState(null, "", url.pathname + url.search + url.hash);
+      });
+    }
+
+    render();
+    return { getMethod: () => method, getOs: () => os };
   }
 
-  if (copyBtn && commandEl) {
-    copyBtn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(currentCommand());
-        copyBtn.classList.add("is-done");
-        const es = copyBtn.querySelector(".lang-es");
-        const en = copyBtn.querySelector(".lang-en");
-        if (es) es.textContent = "Copiado";
-        if (en) en.textContent = "Copied";
-        setTimeout(() => {
-          copyBtn.classList.remove("is-done");
-          if (es) es.textContent = "Copiar";
-          if (en) en.textContent = "Copy";
-        }, 1400);
-      } catch (_) {
-        /* ignore */
-      }
-    });
-  }
+  document.querySelectorAll("[data-terminal]").forEach(bindTerminal);
 
   function setNavOpen(open) {
     const wasOpen = overlay && overlay.classList.contains("is-open");
@@ -429,28 +514,4 @@
     }
   }
 
-  if (terminal) {
-    const params = new URLSearchParams(location.search);
-    const presetMethod = params.get("method");
-    const presetOs = params.get("os");
-    if (presetMethod === "cli" || presetMethod === "install" || presetMethod === "docker") {
-      method = presetMethod;
-      terminal.querySelectorAll("[data-method]").forEach((btn) => {
-        btn.setAttribute("aria-selected", btn.dataset.method === method ? "true" : "false");
-      });
-    }
-    if (presetOs === "mac" || presetOs === "linux" || presetOs === "win") {
-      os = presetOs;
-      terminal.querySelectorAll("[data-os]").forEach((btn) => {
-        btn.setAttribute("aria-selected", btn.dataset.os === os ? "true" : "false");
-      });
-    }
-    renderCommand();
-    terminal.addEventListener("click", () => {
-      const url = new URL(location.href);
-      url.searchParams.set("method", method);
-      url.searchParams.set("os", os);
-      history.replaceState(null, "", url.pathname + url.search + url.hash);
-    });
-  }
 })();

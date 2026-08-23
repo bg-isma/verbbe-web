@@ -1,25 +1,19 @@
 #!/usr/bin/env bash
-# Verbbe CLI — no Node required. Install:
-#   curl -fsSL https://verbbe.com/install.sh | bash
-# Then:
-#   verbbe start --music ~/Music
 set -euo pipefail
 
 VERSION="1.0.0"
-IMAGE="ghcr.io/bg-isma/verbbe:latest"
-GIT_BUILD="https://github.com/bg-isma/Verbbe.git#main:server"
+IMAGE_REPO="ghcr.io/bg-isma/verbbe"
+IMAGE="${IMAGE_REPO}:1.0.0"
+GIT_BUILD="https://github.com/bg-isma/verbbe.git#main:server"
 DEFAULT_PORT=4747
 PREFIX="${VERBBE_PREFIX:-$HOME/.verbbe}"
-if [[ ! -d "$PREFIX" && -d "$HOME/.nookplay" ]]; then
-  mv "$HOME/.nookplay" "$PREFIX"
-fi
 BIN="$PREFIX/bin"
 ENV_FILE="$PREFIX/env"
 COMPOSE_FILE="$PREFIX/compose.yml"
 INSTALL_URLS=(
   "${VERBBE_CLI_URL:-}"
   "https://verbbe.com/install.sh"
-  "https://raw.githubusercontent.com/bg-isma/Verbbe/main/cli/verbbe.sh"
+  "https://raw.githubusercontent.com/bg-isma/verbbe/main/cli/verbbe.sh"
 )
 
 lime=$'\033[38;2;79;255;111m'
@@ -51,14 +45,40 @@ read_env() {
 write_env() {
   mkdir -p "$PREFIX"
   umask 077
+  local port ip host lan="" away=""
+  port="${VERBBE_PORT:-$DEFAULT_PORT}"
+  ip="$(lan_ip)"
+  [[ -n "$ip" ]] && lan="http://${ip}:${port}"
+  if [[ "${VERBBE_MODE:-lan}" == "funnel" ]]; then
+    host="$(ts_dns)"
+    [[ -n "$host" ]] && away="https://${host}"
+  fi
+  VERBBE_DATA="${VERBBE_DATA:-$PREFIX/data}"
+  VERBBE_DB_DATA="${VERBBE_DB_DATA:-$PREFIX/postgres}"
+  mkdir -p "$VERBBE_DATA/artwork" "$VERBBE_DATA/backups" "$VERBBE_DB_DATA"
+  if [[ -z "${DB_PASSWORD:-}" ]]; then
+    DB_PASSWORD="$(openssl rand -hex 24 2>/dev/null || head -c 24 /dev/urandom | xxd -p)"
+  fi
+  if [[ "${VERBBE_MODE:-lan}" == "funnel" && -z "${SETUP_TOKEN:-}" ]]; then
+    SETUP_TOKEN="$(openssl rand -hex 24 2>/dev/null || head -c 24 /dev/urandom | xxd -p)"
+  fi
   cat >"$ENV_FILE" <<EOF
 VERBBE_MUSIC="${VERBBE_MUSIC}"
-VERBBE_PORT="${VERBBE_PORT:-$DEFAULT_PORT}"
+VERBBE_DATA="${VERBBE_DATA}"
+VERBBE_DB_DATA="${VERBBE_DB_DATA}"
+VERBBE_PORT="${port}"
 VERBBE_NAME="${VERBBE_NAME:-Verbbe}"
 VERBBE_MODE="${VERBBE_MODE:-lan}"
+VERBBE_VERSION="${VERBBE_VERSION:-1.0.0}"
 VERBBE_FUNNEL="${VERBBE_FUNNEL:-0}"
 VERBBE_FUNNEL_PUBLIC="${VERBBE_FUNNEL_PUBLIC:-0}"
 VERBBE_TRUST_PROXY="${VERBBE_TRUST_PROXY:-0}"
+VERBBE_LAN_URLS="${lan}"
+VERBBE_AWAY_URL="${away}"
+DB_USERNAME="${DB_USERNAME:-verbbe}"
+DB_DATABASE="${DB_DATABASE:-verbbe}"
+DB_PASSWORD="${DB_PASSWORD}"
+SETUP_TOKEN="${SETUP_TOKEN:-}"
 EOF
 }
 
@@ -67,20 +87,55 @@ write_compose() {
   cat >"$COMPOSE_FILE" <<EOF
 name: verbbe
 services:
-  verbbe:
-    container_name: verbbe
-    image: ${IMAGE}
+  postgres:
+    image: docker.io/postgres:16-alpine
+    container_name: verbbe_postgres
+    environment:
+      POSTGRES_PASSWORD: \${DB_PASSWORD:?set DB_PASSWORD}
+      POSTGRES_USER: \${DB_USERNAME:-verbbe}
+      POSTGRES_DB: \${DB_DATABASE:-verbbe}
+    volumes:
+      - \${VERBBE_DB_DATA}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \$\$POSTGRES_USER -d \$\$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  redis:
+    image: docker.io/redis:7-alpine
+    container_name: verbbe_redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  server:
+    image: ${IMAGE_REPO}:\${VERBBE_VERSION:-1.0.0}
+    container_name: verbbe_server
     build:
       context: ${GIT_BUILD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "\${VERBBE_PORT:-4747}:4747"
     environment:
+      VERBBE_ROLE: server
+      DATABASE_URL: postgres://\${DB_USERNAME:-verbbe}:\${DB_PASSWORD}@postgres:5432/\${DB_DATABASE:-verbbe}
+      REDIS_URL: redis://redis:6379
       DATA_DIR: /data
       MUSIC_DIR: /music
       SERVER_NAME: \${VERBBE_NAME:-Verbbe}
       TRUST_PROXY: \${VERBBE_TRUST_PROXY:-0}
+      LAN_URLS: \${VERBBE_LAN_URLS:-}
+      AWAY_URL: \${VERBBE_AWAY_URL:-}
+      SETUP_TOKEN: \${SETUP_TOKEN:-}
     volumes:
-      - verbbe-data:/data
+      - \${VERBBE_DATA}:/data
       - \${VERBBE_MUSIC}:/music:ro
     restart: unless-stopped
     healthcheck:
@@ -88,9 +143,28 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
-volumes:
-  verbbe-data:
+      start_period: 25s
+  worker:
+    image: ${IMAGE_REPO}:\${VERBBE_VERSION:-1.0.0}
+    container_name: verbbe_worker
+    build:
+      context: ${GIT_BUILD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      VERBBE_ROLE: worker
+      DATABASE_URL: postgres://\${DB_USERNAME:-verbbe}:\${DB_PASSWORD}@postgres:5432/\${DB_DATABASE:-verbbe}
+      REDIS_URL: redis://redis:6379
+      DATA_DIR: /data
+      MUSIC_DIR: /music
+      SERVER_NAME: \${VERBBE_NAME:-Verbbe}
+    volumes:
+      - \${VERBBE_DATA}:/data
+      - \${VERBBE_MUSIC}:/music:ro
+    restart: unless-stopped
 EOF
 }
 
@@ -223,11 +297,30 @@ ensure_tailscale() {
   fi
 }
 
+ensure_verbbe_hostname() {
+  local bin host
+  bin="$(ts_bin)"
+  [[ -n "$bin" ]] || return 0
+  host="$(ts_dns)"
+  if [[ "${host%%.*}" != "verbbe" ]]; then
+    "$bin" funnel reset >/dev/null 2>&1 || true
+    note "${dim}  Naming this computer verbbe on Tailscale…${reset}"
+    "$bin" set --hostname=verbbe >/dev/null 2>&1 || "$bin" set --hostname verbbe || true
+    local i
+    for i in $(seq 1 30); do
+      host="$(ts_dns)"
+      [[ "${host%%.*}" == "verbbe" ]] && return 0
+      sleep 1
+    done
+  fi
+}
+
 enable_funnel() {
   local port="$1"
   local bin
   bin="$(ts_bin)"
   [[ -n "$bin" ]] || fail "Tailscale CLI not found."
+  ensure_verbbe_hostname
   note "${dim}  Enabling public HTTPS (other devices only need Verbbe)…${reset}"
   "$bin" funnel --bg --yes "$port" >/dev/null 2>&1 || "$bin" funnel --bg "$port" || true
   local i host
@@ -245,7 +338,7 @@ enable_funnel() {
   done
   note ""
   note "  Enable HTTPS Certificates once: https://login.tailscale.com/admin/dns"
-  note "  Then re-run: verbbe start --mode tailscale"
+  note "  Then re-run: verbbe start --mode funnel"
   if [[ -t 0 ]]; then
     if [[ "$(uname -s)" == "Darwin" ]]; then open "https://login.tailscale.com/admin/dns"; fi
     note "  Press Enter after enabling HTTPS / Funnel…"
@@ -282,13 +375,13 @@ print_urls() {
   if [[ -n "$ip" ]]; then
     say "  ${dim}Home${reset}     ${lime}${bold}http://${ip}:${port}${reset}"
   fi
-  if [[ "${VERBBE_MODE:-lan}" == "tailscale" ]]; then
+  if [[ "${VERBBE_MODE:-lan}" == "funnel" ]]; then
     local host
     host="$(ts_dns)"
     if [[ -n "$host" ]] && public_away_ok "$host"; then
       say "  ${dim}Away${reset}     ${lime}${bold}https://${host}${reset}"
       say ""
-      say "  ${dim}On this Wi-Fi paste Home. Anywhere else paste Away. No Tailscale on the phone.${reset}"
+      say "  ${dim}On this Wi-Fi the app uses Home by itself. Away is for everywhere else.${reset}"
     else
       say "  ${dim}Away${reset}     ${red}not on the public internet yet${reset}"
     fi
@@ -303,7 +396,7 @@ usage() {
   cat <<EOF
 ${bold}verbbe${reset} — your music, on your computer
 
-  start     [--music PATH] [--mode lan|tailscale] [--port 4747] [--yes]
+  start     [--music PATH] [--mode lan|funnel] [--port 4747] [--yes]
   stop      turn the server off (music files stay)
   uninstall [--yes] [--keep-data]
   restart
@@ -339,7 +432,6 @@ ensure_path() {
 self_install() {
   mkdir -p "$BIN"
   local src="${BASH_SOURCE[0]:-}"
-  # Piped `curl | bash` has no real source file — download instead of copying bash itself.
   if [[ -n "$src" && -f "$src" && "$src" != /bin/bash && "$src" != /usr/bin/bash && "$(basename -- "$src")" != bash ]]; then
     cp "$src" "$BIN/verbbe"
   else
@@ -391,12 +483,12 @@ cmd_start() {
         note ""
         note "Where should the phone reach this computer?"
         note "  1) Home Wi-Fi only"
-        note "  2) From anywhere (Tailscale on this computer only; phone uses Verbbe)"
+        note "  2) Away (public HTTPS; first admin needs a setup token)"
         note ""
         local answer=""
         read -r -p "Choose [1/2]: " answer
         case "$answer" in
-          2|tailscale|fuera|anywhere) mode="tailscale" ;;
+          2|funnel|fuera|anywhere|public|tailscale|serve) mode="funnel" ;;
           *) mode="lan" ;;
         esac
       fi
@@ -404,8 +496,8 @@ cmd_start() {
   fi
   case "$mode" in
     lan|local|home|casa) mode="lan" ;;
-    tailscale|remote|funnel|anywhere|fuera) mode="tailscale" ;;
-    *) fail "Use --mode lan or --mode tailscale" ;;
+    funnel|public|anywhere|fuera|tailscale|remote|serve) mode="funnel" ;;
+    *) fail "Use --mode lan or --mode funnel" ;;
   esac
 
   VERBBE_MUSIC="$music"
@@ -426,16 +518,23 @@ cmd_start() {
 
   if [[ "$mode" == "lan" ]]; then reset_funnel; fi
   ensure_docker
-  if [[ "$mode" == "tailscale" ]]; then
+  if [[ "$mode" == "funnel" ]]; then
     ensure_tailscale
+    ensure_verbbe_hostname
+  fi
+  if [[ "$mode" == "funnel" ]]; then
+    VERBBE_TRUST_PROXY=1
   fi
   write_env
   write_compose
-  note "${dim}  Starting the container…${reset}"
+  if [[ "$mode" == "funnel" ]]; then
+    note "${dim}  setup token  ${SETUP_TOKEN}${reset}"
+    note "${dim}  First admin register must send this token.${reset}"
+  fi
+  note "${dim}  Starting Postgres, Redis, API and worker…${reset}"
   compose up -d --build
-  if [[ "$mode" == "tailscale" ]]; then
+  if [[ "$mode" == "funnel" ]]; then
     enable_funnel "$port"
-    write_env
   fi
   say ""
   print_urls
@@ -444,7 +543,7 @@ cmd_start() {
 
 cmd_stop() {
   read_env
-  if [[ "${VERBBE_FUNNEL:-0}" == "1" || "${VERBBE_MODE:-}" == "tailscale" ]]; then
+  if [[ "${VERBBE_FUNNEL:-0}" == "1" || "${VERBBE_MODE:-}" == "funnel" ]]; then
     note "${dim}  Turning off the public Away link…${reset}"
     reset_funnel
     VERBBE_FUNNEL=0
@@ -530,6 +629,37 @@ cmd_logs() {
   fi
 }
 
+
+cmd_backup() {
+  read_env
+  local data="${VERBBE_DATA:-$PREFIX/data}"
+  mkdir -p "$data/backups"
+  local stamp sql tar
+  stamp="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
+  sql="$data/backups/postgres-${stamp}.sql"
+  tar="$data/backups/verbbe-${stamp}.tgz"
+  compose exec -T postgres pg_dump -U "${DB_USERNAME:-verbbe}" "${DB_DATABASE:-verbbe}" >"$sql"
+  tar -czf "$tar" -C "$data" artwork secrets.json "backups/postgres-${stamp}.sql"
+  say "$tar"
+}
+
+cmd_restore() {
+  local file="${1:-}"
+  [[ -n "$file" && -f "$file" ]] || fail "Usage: verbbe restore FILE.tgz"
+  read_env
+  local data="${VERBBE_DATA:-$PREFIX/data}"
+  mkdir -p "$data"
+  compose stop server worker || true
+  tar -xzf "$file" -C "$data"
+  local sql
+  sql="$(ls -1 "$data/backups"/postgres-*.sql 2>/dev/null | tail -n 1)"
+  [[ -n "$sql" ]] || fail "Archive has no Postgres dump"
+  compose up -d postgres
+  compose exec -T postgres psql -U "${DB_USERNAME:-verbbe}" -d "${DB_DATABASE:-verbbe}" <"$sql"
+  compose up -d
+  say "  restored"
+}
+
 cmd_open() {
   read_env
   local port="${VERBBE_PORT:-$DEFAULT_PORT}"
@@ -538,7 +668,6 @@ cmd_open() {
   fi
 }
 
-# Piped from curl, or first-time copy into ~/.verbbe/bin
 if [[ "$(basename -- "$0")" != "verbbe" ]]; then
   self_install
   if [[ $# -gt 0 && "${1:-}" != "install" ]]; then
@@ -551,6 +680,8 @@ cmd="${1:-help}"
 shift || true
 case "$cmd" in
   start) cmd_start "$@" ;;
+  backup) cmd_backup "$@" ;;
+  restore) cmd_restore "$@" ;;
   stop|off) cmd_stop "$@" ;;
   uninstall|remove) cmd_uninstall "$@" ;;
   restart) cmd_stop; cmd_start "$@" ;;

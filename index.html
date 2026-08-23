@@ -309,11 +309,11 @@
           <p class="eyebrow">Local streaming</p>
           <h2 class="lang-es">Un comando. La biblioteca en el PC.</h2>
           <h2 class="lang-en">One command. The library on the PC.</h2>
-          <p class="lede lang-es">Instala Docker si falta. Monta tu carpeta en solo lectura. Abres el panel, creas el admin y pegas la URL en el iPhone. <span translate="no">verbbe stop</span> apaga; las canciones no se tocan.</p>
-          <p class="lede lang-en">It installs Docker if it’s missing. It mounts your folder read-only. Open the panel, create the admin, paste the URL on the iPhone. <span translate="no">verbbe stop</span> shuts it down; the songs stay.</p>
+          <p class="lede lang-es">Un comando en tu ordenador. Usa la carpeta de música que ya tienes, sin copiarla. Abres la página, creas tu cuenta y pegas la dirección en el iPhone. <span translate="no">verbbe stop</span> apaga el servidor; las canciones se quedan donde estaban.</p>
+          <p class="lede lang-en">One command on your computer. It uses the music folder you already have, without copying it. Open the page, create your account, and paste the address on the iPhone. <span translate="no">verbbe stop</span> turns the server off; the songs stay where they were.</p>
         </header>
 
-        <div class="cli" data-terminal>
+        <div class="cli" data-terminal="install">
           <div class="cli-chrome">
             <span class="cli-dots" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="cli-title" translate="no">verbbe</span>
@@ -361,8 +361,8 @@ $ verbbe start --music ~/Music</code></pre>
             <span class="kit-mark docker"><img src="assets/vendors/docker.svg" width="28" height="28" alt="" /></span>
             <span class="kit-copy">
               <h4>Docker <em>compose</em></h4>
-              <p class="lang-es">Si ya clonaste el repo: <code translate="no">VERBBE_MUSIC=~/Music docker compose up --build</code> en <span translate="no">server/</span>.</p>
-              <p class="lang-en">If you already cloned the repo: <code translate="no">VERBBE_MUSIC=~/Music docker compose up --build</code> in <span translate="no">server/</span>.</p>
+              <p class="lang-es">Clona <span translate="no">bg-isma/verbbe</span> y en <span translate="no">server/</span> pasa <span translate="no">DB_PASSWORD</span> y <span translate="no">MUSIC_LOCATION=~/Music</span>. Compose levanta Postgres, Redis, API y worker.</p>
+              <p class="lang-en">Clone <span translate="no">bg-isma/verbbe</span> and in <span translate="no">server/</span> pass <span translate="no">DB_PASSWORD</span> and <span translate="no">MUSIC_LOCATION=~/Music</span>. Compose starts Postgres, Redis, API, and worker.</p>
               <span class="kit-url">docker.com</span>
             </span>
           </a>
@@ -370,11 +370,48 @@ $ verbbe start --music ~/Music</code></pre>
             <span class="kit-mark tailscale"><img src="assets/vendors/tailscale.svg" width="28" height="28" alt="" /></span>
             <span class="kit-copy">
               <h4>Tailscale <em class="is-away">Away</em></h4>
-              <p class="lang-es">Solo en el ordenador. El CLI abre el panel de certificados y Funnel y espera a que Away resuelva en DNS público.</p>
-              <p class="lang-en">Only on the computer. The CLI opens the certificates and Funnel pages and waits until Away exists in public DNS.</p>
+              <p class="lang-es">Solo en el ordenador. <span translate="no">--mode funnel</span> publica un enlace <span translate="no">https://verbbe.…ts.net</span>. El iPhone no instala Tailscale; hace falta el token de instalación.</p>
+              <p class="lang-en">Only on the computer. <span translate="no">--mode funnel</span> publishes a <span translate="no">https://verbbe.…ts.net</span> link. The iPhone does not install Tailscale; you need the setup token.</p>
               <span class="kit-url">tailscale.com</span>
             </span>
           </a>
+        </div>
+        <header class="host-head host-off-head" id="quitar">
+          <p class="eyebrow lang-es">Quitar</p>
+          <p class="eyebrow lang-en">Remove</p>
+          <h2 class="lang-es">Un comando. Fuera del PC.</h2>
+          <h2 class="lang-en">One command. Off the PC.</h2>
+          <p class="lede lang-es">Se instala en la cuenta de quien lanza el CLI, no en un usuario fijo. <span translate="no">uninstall</span> pregunta si borra el catálogo. Las canciones no se tocan. <span translate="no">stop</span> solo apaga.</p>
+          <p class="lede lang-en">It installs for whoever runs the CLI, not a fixed account. <span translate="no">uninstall</span> asks whether to delete the catalog. Songs are not touched. <span translate="no">stop</span> only pauses it.</p>
+        </header>
+        <div class="cli" data-terminal="remove">
+          <div class="cli-chrome">
+            <span class="cli-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="cli-title" translate="no">verbbe uninstall</span>
+            <button type="button" class="copy-btn" data-copy aria-live="polite">
+              <span class="lang-es">Copiar</span>
+              <span class="lang-en">Copy</span>
+            </button>
+          </div>
+          <div class="cli-tabs">
+            <div class="tab-group" role="tablist" aria-label="Uninstall method">
+              <button type="button" role="tab" data-method="cli">npx</button>
+              <button type="button" role="tab" data-method="install" aria-selected="true">curl</button>
+              <button type="button" role="tab" data-method="docker">Docker</button>
+            </div>
+            <div class="tab-group" role="tablist" aria-label="Uninstall action">
+              <button type="button" role="tab" data-action="uninstall" aria-selected="true">uninstall</button>
+              <button type="button" role="tab" data-action="stop">stop</button>
+              <button type="button" role="tab" data-action="keep">--keep-data</button>
+            </div>
+            <div class="tab-group" role="tablist" aria-label="Operating system">
+              <button type="button" role="tab" data-os="mac" aria-selected="true">macOS</button>
+              <button type="button" role="tab" data-os="linux">Linux</button>
+              <button type="button" role="tab" data-os="win">Windows</button>
+            </div>
+          </div>
+          <pre class="cli-body"><code data-command>$ verbbe uninstall</code></pre>
+          <pre class="cli-out" aria-hidden="true"><code data-output></code></pre>
         </div>
       </section>
 
@@ -485,6 +522,51 @@ $ verbbe start --music ~/Music</code></pre>
             </div>
           </details>
           <details>
+            <summary><span class="lang-es">¿Dónde está la carpeta /music?</span><span class="lang-en">Where is the /music folder?</span></summary>
+            <div class="ask-panel">
+              <div class="ask-panel-inner">
+                <p class="lang-es">Solo existe dentro de Docker. En el Mac o el PC es <span translate="no">~/Music</span> (o la ruta de <span translate="no">--music</span>). El panel puede abrirla en Finder o el Explorador.</p>
+                <p class="lang-en">It only exists inside Docker. On the Mac or PC it’s <span translate="no">~/Music</span> (or your <span translate="no">--music</span> path). The panel can open it in Finder or Explorer.</p>
+              </div>
+            </div>
+          </details>
+          <details>
+            <summary><span class="lang-es">¿Para qué sirve la clave API?</span><span class="lang-en">What is the API key for?</span></summary>
+            <div class="ask-panel">
+              <div class="ask-panel-inner">
+                <p class="lang-es">Para scripts u otras apps. El iPhone entra con email y contraseña. Si no tienes una integración, no hace falta crear ninguna.</p>
+                <p class="lang-en">For scripts or other apps. The iPhone signs in with email and password. If you don’t have an integration, you don’t need one.</p>
+              </div>
+            </div>
+          </details>
+          <details>
+            <summary><span class="lang-es">¿Dónde guarda los datos?</span><span class="lang-en">Where does it store data?</span></summary>
+            <div class="ask-panel">
+              <div class="ask-panel-inner">
+                <p class="lang-es">Las canciones se quedan en tu carpeta. El catálogo (Postgres), carátulas y secretos van a <span translate="no">~/.verbbe</span> de <em>tu</em> usuario del Mac o PC, no a una cuenta fija. Copia de seguridad: <span translate="no">verbbe backup</span>.</p>
+                <p class="lang-en">Songs stay in your folder. The catalog (Postgres), artwork, and secrets go to <span translate="no">~/.verbbe</span> for <em>your</em> Mac or PC user, not a fixed account. Backup: <span translate="no">verbbe backup</span>.</p>
+              </div>
+            </div>
+          </details>
+          <details>
+            <summary><span class="lang-es">¿Cómo lo desinstalo?</span><span class="lang-en">How do I uninstall it?</span></summary>
+            <div class="ask-panel">
+              <div class="ask-panel-inner">
+                <p class="lang-es">La consola de <a href="#quitar">Quitar</a>: <span translate="no">verbbe uninstall</span>. Pregunta si borra el catálogo. La música no se borra. Solo apagar: <span translate="no">verbbe stop</span>. Dejar datos: <span translate="no">--keep-data</span>.</p>
+                <p class="lang-en">Use the <a href="#quitar">Remove</a> console: <span translate="no">verbbe uninstall</span>. It asks whether to delete the catalog. Music is not deleted. Pause only: <span translate="no">verbbe stop</span>. Keep data: <span translate="no">--keep-data</span>.</p>
+              </div>
+            </div>
+          </details>
+          <details>
+            <summary><span class="lang-es">¿Se instala siempre en el mismo usuario?</span><span class="lang-en">Does it always install for the same user?</span></summary>
+            <div class="ask-panel">
+              <div class="ask-panel-inner">
+                <p class="lang-es">No. Usa el usuario de quien ejecuta el CLI: su <span translate="no">~/Music</span> y su <span translate="no">~/.verbbe</span>. Si en un Mac el usuario se llama ismael, las rutas serán las de ismael; en el de Ana, las de Ana.</p>
+                <p class="lang-en">No. It uses whoever runs the CLI: their <span translate="no">~/Music</span> and their <span translate="no">~/.verbbe</span>. If that Mac account is ismael, those are ismael’s paths; on Ana’s machine, Ana’s.</p>
+              </div>
+            </div>
+          </details>
+          <details>
             <summary><span class="lang-es">¿Reproduce Spotify, Apple Music o YouTube?</span><span class="lang-en">Does it play Spotify, Apple Music, or YouTube?</span></summary>
             <div class="ask-panel">
               <div class="ask-panel-inner">
@@ -497,8 +579,8 @@ $ verbbe start --music ~/Music</code></pre>
             <summary><span class="lang-es">¿El iPhone instala Tailscale?</span><span class="lang-en">Does the iPhone install Tailscale?</span></summary>
             <div class="ask-panel">
               <div class="ask-panel-inner">
-                <p class="lang-es">No. Tailscale corre solo en el ordenador. En el teléfono basta Verbbe, la URL Away y tu usuario.</p>
-                <p class="lang-en">No. Tailscale runs only on the computer. The phone only needs Verbbe, the Away URL, and your user.</p>
+                <p class="lang-es">No. Tailscale corre solo en el ordenador. En el teléfono basta Verbbe, la URL (casa o Away) y tu usuario.</p>
+                <p class="lang-en">No. Tailscale runs only on the computer. The phone only needs Verbbe, the URL (home or Away), and your user.</p>
               </div>
             </div>
           </details>

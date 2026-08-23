@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from "node:child_process";
 import { Resolver } from "node:dns/promises";
-import { existsSync, mkdirSync, writeFileSync, readFileSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, readdirSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import https from "node:https";
 import { homedir, networkInterfaces, platform } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -9,10 +10,12 @@ import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 
 const VERSION = "1.0.0";
-const GIT_BUILD = "https://github.com/bg-isma/Verbbe.git#main:server";
-const IMAGE = "ghcr.io/bg-isma/verbbe:latest";
+const GIT_BUILD = "https://github.com/bg-isma/verbbe.git#main:server";
+const IMAGE_REPO = "ghcr.io/bg-isma/verbbe";
+const IMAGE = `${IMAGE_REPO}:1.0.0`;
 const DEFAULT_PORT = 4747;
 const TAILSCALE_DOWNLOAD = "https://tailscale.com/download";
+const TAILSCALE_HOSTNAME = "verbbe";
 
 const lime = "\x1b[38;2;79;255;111m";
 const dim = "\x1b[38;2;160;160;165m";
@@ -22,9 +25,6 @@ const reset = "\x1b[0m";
 
 const home = homedir();
 const configDir = join(home, ".verbbe");
-if (!existsSync(configDir) && existsSync(join(home, ".nookplay"))) {
-  renameSync(join(home, ".nookplay"), configDir);
-}
 const composePath = join(configDir, "compose.yml");
 const envPath = join(configDir, "env");
 
@@ -58,10 +58,13 @@ function banner() {
 function usage() {
   say(`${paint(bold, "verbbe")} — your music, on your computer`);
   say();
-  say("  start     [--music PATH] [--port 4747] [--name Verbbe] [--mode lan|tailscale]");
+  say("  start     [--music PATH] [--data PATH] [--db-data PATH] [--port 4747]");
+  say("            [--name Verbbe] [--mode lan|funnel]");
   say("            [--native] [--no-open] [--yes] [--tailscale-auth-key KEY]");
   say("  stop      stop the server (music files stay)");
   say("  uninstall [--yes] [--keep-data]   stop and remove the service");
+  say("  backup    Postgres dump + artwork + secrets → DATA/backups");
+  say("  restore   FILE.tgz");
   say("  restart");
   say("  status");
   say("  url");
@@ -73,9 +76,8 @@ function usage() {
   say("  curl -fsSL https://verbbe.com/install.sh | bash   # no Node needed");
   say("  npx verbbe start --music ~/Music                  # if you already have Node");
   say();
-  say("  lan        phone on the same Wi-Fi");
-  say("  tailscale  public HTTPS (Funnel). Only this computer runs Tailscale;");
-  say("             anyone with Verbbe pastes the Away URL — no extra app.");
+  say("  lan     phone on the same Wi-Fi (default)");
+  say("  funnel  public HTTPS (Away). First admin needs the setup token the CLI prints.");
   say();
 }
 
@@ -84,6 +86,8 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     if (token === "--music" || token === "-m") args.music = argv[++i];
+    else if (token === "--data") args.data = argv[++i];
+    else if (token === "--db-data") args.dbData = argv[++i];
     else if (token === "--port" || token === "-p") args.port = argv[++i];
     else if (token === "--name") args.name = argv[++i];
     else if (token === "--mode") args.mode = argv[++i];
@@ -99,6 +103,67 @@ function parseArgs(argv) {
     else args._.push(token);
   }
   return args;
+}
+
+function dbPasswordFile() {
+  return join(configDir, "db-password");
+}
+
+function resolveDbPassword(previous, dbDir) {
+  mkdirSync(dbDir, { recursive: true });
+  mkdirSync(configDir, { recursive: true });
+  const stamp = dbPasswordFile();
+  if (existsSync(stamp)) {
+    const stored = readFileSync(stamp, "utf8").trim();
+    if (stored) return stored;
+  }
+  if (existsSync(join(dbDir, "PG_VERSION"))) {
+    note(paint(dim, "  Catalog password is missing — resetting the catalog. Music files stay."));
+    rmSync(dbDir, { recursive: true, force: true });
+    mkdirSync(dbDir, { recursive: true });
+  }
+  const password = previous.DB_PASSWORD || randomSecret();
+  writeFileSync(stamp, `${password}\n`, { mode: 0o600 });
+  return password;
+}
+
+function databaseUrl(user, password, database) {
+  return `postgres://${encodeURIComponent(user)}:${encodeURIComponent(password)}@postgres:5432/${encodeURIComponent(database)}`;
+}
+
+function randomSecret() {
+  return randomBytes(24).toString("hex");
+}
+
+function expandHome(value) {
+  return resolve(String(value).replace(/^~(?=$|[/\\])/, home));
+}
+
+const openFolderPidPath = join(configDir, "open-folder.pid");
+
+function stopOpenFolderHelper() {
+  if (!existsSync(openFolderPidPath)) return;
+  const pid = Number(readFileSync(openFolderPidPath, "utf8").trim());
+  if (pid) {
+    try { process.kill(pid, "SIGTERM"); } catch {}
+  }
+  try { rmSync(openFolderPidPath, { force: true }); } catch {}
+}
+
+function startOpenFolderHelper(music, dataDir) {
+  const helper = join(dirname(fileURLToPath(import.meta.url)), "open-folder-helper.mjs");
+  if (!existsSync(helper)) return;
+  stopOpenFolderHelper();
+  const queueDir = join(dataDir, "open-folder");
+  mkdirSync(queueDir, { recursive: true });
+  const child = spawn(process.execPath, [helper], {
+    detached: true,
+    stdio: "ignore",
+    windowsHide: true,
+    env: { ...process.env, VERBBE_MUSIC: music, VERBBE_OPEN_DIR: queueDir },
+  });
+  if (child.pid) writeFileSync(openFolderPidPath, String(child.pid));
+  child.unref();
 }
 
 function findServerDir() {
@@ -243,35 +308,96 @@ function run(bin, argv, opts = {}) {
 }
 
 function composeFile(serverDir) {
-  const context = serverDir || GIT_BUILD;
-  return `# generated by verbbe ${VERSION}
-name: verbbe
-services:
-  verbbe:
-    container_name: verbbe
-    image: ${IMAGE}
-    build:
-      context: ${JSON.stringify(context)}
-    ports:
-      - "\${VERBBE_PORT:-4747}:4747"
-    environment:
-      DATA_DIR: /data
-      MUSIC_DIR: /music
-      SERVER_NAME: \${VERBBE_NAME:-Verbbe}
-      TRUST_PROXY: \${VERBBE_TRUST_PROXY:-0}
-    volumes:
-      - verbbe-data:/data
-      - \${VERBBE_MUSIC}:/music:ro
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4747/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-volumes:
-  verbbe-data:
-`;
+  const context = JSON.stringify(serverDir || GIT_BUILD);
+  return [
+    "# verbbe " + VERSION,
+    "name: verbbe",
+    "services:",
+    "  postgres:",
+    "    image: docker.io/postgres:16-alpine",
+    "    container_name: verbbe_postgres",
+    "    environment:",
+    "      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD}",
+    "      POSTGRES_USER: ${DB_USERNAME:-verbbe}",
+    "      POSTGRES_DB: ${DB_DATABASE:-verbbe}",
+    "    volumes:",
+    "      - ${VERBBE_DB_DATA}:/var/lib/postgresql/data",
+    "    healthcheck:",
+    "      test: [\"CMD-SHELL\", \"pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB\"]",
+    "      interval: 10s",
+    "      timeout: 5s",
+    "      retries: 10",
+    "    restart: unless-stopped",
+    "  redis:",
+    "    image: docker.io/redis:7-alpine",
+    "    container_name: verbbe_redis",
+    "    healthcheck:",
+    "      test: [\"CMD\", \"redis-cli\", \"ping\"]",
+    "      interval: 10s",
+    "      timeout: 5s",
+    "      retries: 5",
+    "    restart: unless-stopped",
+    "  server:",
+    "    image: " + IMAGE_REPO + ":${VERBBE_VERSION:-1.0.0}",
+    "    container_name: verbbe_server",
+    "    build:",
+    "      context: " + context,
+    "    depends_on:",
+    "      postgres:",
+    "        condition: service_healthy",
+    "      redis:",
+    "        condition: service_healthy",
+    "    ports:",
+    "      - \"${VERBBE_PORT:-4747}:4747\"",
+    "    environment:",
+    "      VERBBE_ROLE: server",
+    "      DATABASE_URL: postgres://${DB_USERNAME:-verbbe}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-verbbe}",
+    "      REDIS_URL: redis://redis:6379",
+    "      DATA_DIR: /data",
+    "      MUSIC_DIR: /music",
+    "      MUSIC_HOST_DIR: ${VERBBE_MUSIC}",
+    "      SERVER_NAME: ${VERBBE_NAME:-Verbbe}",
+    "      TRUST_PROXY: ${VERBBE_TRUST_PROXY:-0}",
+    "      LAN_URLS: ${VERBBE_LAN_URLS:-}",
+    "      AWAY_URL: ${VERBBE_AWAY_URL:-}",
+    "      SETUP_TOKEN: ${SETUP_TOKEN:-}",
+    "      OIDC_ISSUER: ${OIDC_ISSUER:-}",
+    "      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}",
+    "      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}",
+    "      OIDC_REDIRECT_URL: ${OIDC_REDIRECT_URL:-}",
+    "    volumes:",
+    "      - ${VERBBE_DATA}:/data",
+    "      - ${VERBBE_MUSIC}:/music:ro",
+    "    healthcheck:",
+    "      test: [\"CMD\", \"node\", \"-e\", \"fetch('http://127.0.0.1:4747/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"]",
+    "      interval: 30s",
+    "      timeout: 5s",
+    "      retries: 3",
+    "      start_period: 25s",
+    "    restart: unless-stopped",
+    "  worker:",
+    "    image: " + IMAGE_REPO + ":${VERBBE_VERSION:-1.0.0}",
+    "    container_name: verbbe_worker",
+    "    build:",
+    "      context: " + context,
+    "    depends_on:",
+    "      postgres:",
+    "        condition: service_healthy",
+    "      redis:",
+    "        condition: service_healthy",
+    "    environment:",
+    "      VERBBE_ROLE: worker",
+    "      DATABASE_URL: postgres://${DB_USERNAME:-verbbe}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-verbbe}",
+    "      REDIS_URL: redis://redis:6379",
+    "      DATA_DIR: /data",
+    "      MUSIC_DIR: /music",
+    "      MUSIC_HOST_DIR: ${VERBBE_MUSIC}",
+    "      SERVER_NAME: ${VERBBE_NAME:-Verbbe}",
+    "    volumes:",
+    "      - ${VERBBE_DATA}:/data",
+    "      - ${VERBBE_MUSIC}:/music:ro",
+    "    restart: unless-stopped",
+  ].join("\n") + "\n";
 }
 
 function readEnvFile() {
@@ -287,18 +413,43 @@ function readEnvFile() {
   return out;
 }
 
-function writeEnv({ music, port, name, mode, funnel, publicAway }) {
+function writeEnv({ music, port, name, mode, funnel, publicAway, data, dbData, setupToken }) {
   mkdirSync(configDir, { recursive: true });
   const previous = readEnvFile();
   const published = publicAway == null ? previous.VERBBE_FUNNEL_PUBLIC === "1" : Boolean(publicAway);
+  const advertised = advertisedEnv(mode, port);
+  const dataDir = data || previous.VERBBE_DATA || join(configDir, "data");
+  const dbDir = dbData || previous.VERBBE_DB_DATA || join(configDir, "postgres");
+  mkdirSync(dataDir, { recursive: true });
+  mkdirSync(dbDir, { recursive: true });
+  mkdirSync(join(dataDir, "artwork"), { recursive: true });
+  mkdirSync(join(dataDir, "backups"), { recursive: true });
+  const dbUser = previous.DB_USERNAME || "verbbe";
+  const dbName = previous.DB_DATABASE || "verbbe";
+  const dbPassword = resolveDbPassword(previous, dbDir);
+  const token = setupToken != null ? setupToken : (previous.SETUP_TOKEN || (mode === "funnel" ? randomSecret() : ""));
   const body = [
     `VERBBE_MUSIC=${music}`,
+    `VERBBE_DATA=${dataDir}`,
+    `VERBBE_DB_DATA=${dbDir}`,
     `VERBBE_PORT=${port}`,
     `VERBBE_NAME=${name}`,
     `VERBBE_MODE=${mode}`,
+    `VERBBE_VERSION=${previous.VERBBE_VERSION || "1.0.0"}`,
     `VERBBE_FUNNEL=${funnel ? "1" : "0"}`,
     `VERBBE_FUNNEL_PUBLIC=${published ? "1" : "0"}`,
-    `VERBBE_TRUST_PROXY=${funnel || mode === "tailscale" ? "1" : "0"}`,
+    `VERBBE_TRUST_PROXY=${funnel || mode === "funnel" ? "1" : "0"}`,
+    `VERBBE_LAN_URLS=${advertised.lan}`,
+    `VERBBE_AWAY_URL=${advertised.away}`,
+    `DB_USERNAME=${dbUser}`,
+    `DB_DATABASE=${dbName}`,
+    `DB_PASSWORD=${dbPassword}`,
+    `DATABASE_URL=${databaseUrl(dbUser, dbPassword, dbName)}`,
+    `SETUP_TOKEN=${token}`,
+    `OIDC_ISSUER=${previous.OIDC_ISSUER || ""}`,
+    `OIDC_CLIENT_ID=${previous.OIDC_CLIENT_ID || ""}`,
+    `OIDC_CLIENT_SECRET=${previous.OIDC_CLIENT_SECRET || ""}`,
+    `OIDC_REDIRECT_URL=${previous.OIDC_REDIRECT_URL || ""}`,
   ].join("\n");
   writeFileSync(envPath, `${body}\n`, { mode: 0o600 });
 }
@@ -308,9 +459,25 @@ function composeEnv() {
   return {
     ...process.env,
     VERBBE_MUSIC: saved.VERBBE_MUSIC,
+    VERBBE_DATA: saved.VERBBE_DATA || join(configDir, "data"),
+    VERBBE_DB_DATA: saved.VERBBE_DB_DATA || join(configDir, "postgres"),
     VERBBE_PORT: saved.VERBBE_PORT || String(DEFAULT_PORT),
     VERBBE_NAME: saved.VERBBE_NAME || "Verbbe",
+    VERBBE_VERSION: saved.VERBBE_VERSION || "1.0.0",
     VERBBE_TRUST_PROXY: saved.VERBBE_TRUST_PROXY || "0",
+    VERBBE_LAN_URLS: saved.VERBBE_LAN_URLS || "",
+    VERBBE_AWAY_URL: saved.VERBBE_AWAY_URL || "",
+    DB_USERNAME: saved.DB_USERNAME || "verbbe",
+    DB_DATABASE: saved.DB_DATABASE || "verbbe",
+    DB_PASSWORD: saved.DB_PASSWORD || "",
+    DATABASE_URL:
+      saved.DATABASE_URL ||
+      databaseUrl(saved.DB_USERNAME || "verbbe", saved.DB_PASSWORD || "", saved.DB_DATABASE || "verbbe"),
+    SETUP_TOKEN: saved.SETUP_TOKEN || "",
+    OIDC_ISSUER: saved.OIDC_ISSUER || "",
+    OIDC_CLIENT_ID: saved.OIDC_CLIENT_ID || "",
+    OIDC_CLIENT_SECRET: saved.OIDC_CLIENT_SECRET || "",
+    OIDC_REDIRECT_URL: saved.OIDC_REDIRECT_URL || "",
   };
 }
 
@@ -321,6 +488,15 @@ function ensureCompose(serverDir) {
 
 function composeArgs(extra) {
   return ["--env-file", envPath, "-f", composePath, ...extra];
+}
+
+function syncComposeEnv() {
+  const compose = dockerCompose();
+  if (!compose || !existsSync(composePath)) return;
+  run(compose.bin, [...compose.prefix, ...composeArgs(["up", "-d"])], {
+    env: composeEnv(),
+    allowFail: true,
+  });
 }
 
 function ask(question, fallback) {
@@ -337,8 +513,16 @@ function ask(question, fallback) {
 function normalizeMode(raw) {
   const value = String(raw || "").trim().toLowerCase();
   if (value === "lan" || value === "local" || value === "home" || value === "casa") return "lan";
-  if (value === "tailscale" || value === "remote" || value === "funnel" || value === "anywhere" || value === "fuera") {
-    return "tailscale";
+  if (
+    value === "funnel" ||
+    value === "public" ||
+    value === "anywhere" ||
+    value === "fuera" ||
+    value === "tailscale" ||
+    value === "remote" ||
+    value === "serve"
+  ) {
+    return "funnel";
   }
   return "";
 }
@@ -349,35 +533,39 @@ async function promptMode() {
   note("  1) Home Wi-Fi only");
   note("     Phone and this computer on the same network. Nothing published on the internet.");
   note("");
-  note("  2) From anywhere (mobile data, another house, friends…)");
-  note("     Public HTTPS. Tailscale runs only on this computer.");
-  note("     Other devices only need the Verbbe app and your login.");
+  note("  2) Away (public HTTPS)");
+  note("     A verbbe.…ts.net link. Anyone with the URL can reach login. The CLI prints a");
+  note("     setup token for the first admin.");
   note("");
   const rl = createInterface({ input: process.stdin, output: process.stderr });
   const chosen = await new Promise((resolveChoice) => {
     const askAgain = () => {
       rl.question("Choose [1/2]: ", (answer) => {
-        const mode = normalizeMode(answer) || (answer.trim() === "1" ? "lan" : answer.trim() === "2" ? "tailscale" : "");
+        const mode = normalizeMode(answer) || (answer.trim() === "1" ? "lan" : answer.trim() === "2" ? "funnel" : "");
         if (mode) {
           rl.close();
           resolveChoice(mode);
           return;
         }
-        note("Pick 1 (home Wi-Fi) or 2 (anywhere).");
+        note("Pick 1 (home Wi-Fi) or 2 (Away).");
         askAgain();
       });
     };
     askAgain();
   });
   note("");
-  note(chosen === "tailscale" ? "Mode: from anywhere." : "Mode: home Wi-Fi only.");
+  note(chosen === "funnel" ? "Mode: Away (public HTTPS)." : "Mode: home Wi-Fi only.");
   return chosen;
 }
 
 async function resolveMode(args) {
   const flagged = normalizeMode(args.mode);
   if (flagged) return flagged;
-  const saved = normalizeMode(readEnvFile().VERBBE_MODE);
+  const savedFile = readEnvFile();
+  if (!args.mode && savedFile.VERBBE_FUNNEL === "1") {
+    return "funnel";
+  }
+  const saved = normalizeMode(savedFile.VERBBE_MODE);
   if (args.yes || !process.stdin.isTTY) return saved || "lan";
   if (saved) return saved;
   return promptMode();
@@ -396,11 +584,19 @@ function accessURLs(mode, port) {
   const lan = lanAddresses();
   const homeUrl = lan[0] ? `http://${lan[0]}:${port}` : localhost;
   let remote = "";
-  if (mode === "tailscale") {
+  if (mode === "funnel") {
     const ts = tailscaleInfo();
     if (ts.dnsName) remote = `https://${ts.dnsName}`;
   }
   return { localhost, home: homeUrl, remote, lan };
+}
+
+function advertisedEnv(mode, port) {
+  const urls = accessURLs(mode, port);
+  return {
+    lan: urls.lan.map((ip) => `http://${ip}:${port}`).join(","),
+    away: urls.remote || "",
+  };
 }
 
 async function printEndpoints(mode, port, awayReady = null) {
@@ -413,27 +609,28 @@ async function printEndpoints(mode, port, awayReady = null) {
       say(`  ${paint(dim, "Home")}     ${paint(lime + bold, `http://${ip}:${port}`)}`);
     }
   }
-  if (mode === "tailscale") {
+  if (mode === "funnel") {
     const ready = awayReady == null ? (await probePublicAway()).ok : awayReady;
-    if (ready && urls.remote.startsWith("https://")) {
+    if (urls.remote.startsWith("https://")) {
       say(`  ${paint(dim, "Away")}     ${paint(lime + bold, urls.remote)}`);
       say();
-      say(`  ${paint(dim, "On this Wi-Fi, paste Home. Anywhere else (or to share), paste Away.")}`);
-      say(`  ${paint(dim, "Away is public HTTPS. Other people only need Verbbe — not Tailscale.")}`);
-      say(`  ${paint(dim, "Use a strong password.")}`);
+      if (ready) {
+        say(`  ${paint(dim, "Paste Away on the iPhone. It works off home Wi-Fi.")}`);
+      } else {
+        say(`  ${paint(dim, "If the phone cannot open it yet, wait a minute and try again.")}`);
+      }
     } else {
-      say(`  ${paint(dim, "Away")}     ${paint(red, "not on the public internet yet")}`);
+      say(`  ${paint(dim, "Away")}     ${paint(red, "no Tailscale HTTPS name yet")}`);
       say();
-      say(`  ${paint(dim, "Do not paste the .ts.net link yet — phones without Tailscale cannot open it.")}`);
-      say(`  ${paint(dim, "Re-run:")} verbbe start --mode tailscale`);
+      say(`  ${paint(dim, "Re-run:")} verbbe start --mode funnel`);
     }
   } else {
     say();
-    say(`  ${paint(dim, "From anywhere later:")} verbbe start --mode tailscale`);
+    say(`  ${paint(dim, "Away later:")} verbbe start --mode funnel`);
   }
   say();
   say(`  ${paint(dim, "1.")} Open Local in a browser. The first account is admin.`);
-  say(`  ${paint(dim, "2.")} Add the music folder and scan.`);
+  say(`  ${paint(dim, "2.")} Music on disk is watched; you can also press Index.`);
   say(`  ${paint(dim, "3.")} In Verbbe: Profile → Server → paste Home or Away.`);
   say();
 }
@@ -465,7 +662,6 @@ async function probeServer(port) {
     const res = await fetch(`http://127.0.0.1:${port}/api/server-info`);
     if (res.ok) return await res.json();
   } catch {
-    /* not up */
   }
   return null;
 }
@@ -564,7 +760,6 @@ function tailscaleInfo() {
       }
     }
   } catch {
-    /* ignore malformed status */
   }
   return info;
 }
@@ -715,8 +910,7 @@ async function lookupPublicA(dnsName) {
         if (!isPrivateOrLocalIp(ip) && !found.includes(ip)) found.push(ip);
       }
     } catch {
-      /* NXDOMAIN / timeout */
-    }
+  }
   }
   return found;
 }
@@ -779,10 +973,14 @@ function explainPublicHttpsSetup(enableURL) {
   note("");
 }
 
-async function waitForPublicAway(seconds) {
+async function waitForPublicAway(seconds, port) {
   const deadline = Date.now() + seconds * 1000;
   let last = "checking";
   while (Date.now() < deadline) {
+    const local = await probeServer(port);
+    if (!local) {
+      return { ok: false, dnsName: tailscaleInfo().dnsName || "", detail: "API is not running on this computer" };
+    }
     const check = await probePublicAway();
     if (check.ok) return check;
     last = check.detail;
@@ -802,8 +1000,7 @@ function killProcessGroup(child) {
     try {
       child.kill("SIGKILL");
     } catch {
-      /* gone */
-    }
+  }
   }
 }
 
@@ -881,10 +1078,35 @@ async function turnLocalFunnelOn(bin, port, interactive) {
   return enableURL;
 }
 
+async function ensureVerbbeHostname() {
+  const bin = resolveTailscaleBin();
+  if (!bin) return tailscaleInfo();
+  const looksRight = (name) => {
+    const dns = String(name || "").toLowerCase();
+    return dns === TAILSCALE_HOSTNAME || dns.startsWith(`${TAILSCALE_HOSTNAME}.`);
+  };
+  const current = tailscaleInfo();
+  if (!looksRight(current.dnsName)) {
+    if (proxyStatusEnabled("funnel")) {
+      spawnSync(bin, ["funnel", "reset"], { encoding: "utf8" });
+    }
+    note(paint(dim, `  Naming this computer ${TAILSCALE_HOSTNAME} on Tailscale…`));
+    spawnSync(bin, ["set", `--hostname=${TAILSCALE_HOSTNAME}`], { encoding: "utf8" });
+  }
+  const deadline = Date.now() + 45_000;
+  while (Date.now() < deadline) {
+    const info = tailscaleInfo();
+    if (looksRight(info.dnsName)) return info;
+    await sleep(1500);
+  }
+  return tailscaleInfo();
+}
+
 async function enableFunnel(port, interactive) {
   const bin = resolveTailscaleBin();
   if (!bin) fail(`Tailscale CLI not found. Install it from ${TAILSCALE_DOWNLOAD}`);
 
+  await ensureVerbbeHostname();
   note(paint(dim, "  Enabling public HTTPS (Tailscale Funnel)…"));
   note(paint(dim, "  Other devices only need Verbbe. Tailscale stays on this computer."));
 
@@ -892,18 +1114,21 @@ async function enableFunnel(port, interactive) {
   note(`  ${paint(lime, "●")}  Funnel process is on this computer`);
   note(paint(dim, "  Checking that the Away URL works from the public internet…"));
 
-  let check = await waitForPublicAway(120);
+  let check = await waitForPublicAway(120, port);
   if (!check.ok) {
+    if (check.detail.includes("not running")) {
+      fail("The API is not running on this computer, so Away cannot work. Check docker logs and re-run.");
+    }
     explainPublicHttpsSetup(enableURL);
     if (!interactive) {
       fail(
-        `Away is not public yet (${check.detail}). Enable HTTPS + Funnel, then re-run: verbbe start --mode tailscale`,
+        `Away is not public yet (${check.detail}). Enable HTTPS + Funnel, then re-run: verbbe start --mode funnel`,
       );
     }
     openUrl("https://login.tailscale.com/admin/dns");
     await waitForEnter("  Press Enter after enabling HTTPS Certificates / Funnel... ");
     await runProxyOnce(bin, "funnel", port, 12_000);
-    check = await waitForPublicAway(180);
+    check = await waitForPublicAway(180, port);
   }
   if (!check.ok) {
     fail(
@@ -929,64 +1154,87 @@ async function cmdStart(args) {
   const mode = await resolveMode(args);
   const previous = readEnvFile();
   const serverDir = findServerDir();
+  const dataDir = args.data ? expandHome(args.data) : (previous.VERBBE_DATA || join(configDir, "data"));
+  const dbDir = args.dbData ? expandHome(args.dbData) : (previous.VERBBE_DB_DATA || join(configDir, "postgres"));
+  mkdirSync(dataDir, { recursive: true });
+  mkdirSync(dbDir, { recursive: true });
 
   if (!existsSync(music)) fail(`Music folder not found: ${music}`);
 
   banner();
+  const modeLabel = mode === "funnel" ? "Away (public HTTPS)" : "home Wi-Fi";
   say(`  ${paint(dim, "music")}   ${music}`);
+  say(`  ${paint(dim, "data")}    ${dataDir}`);
+  say(`  ${paint(dim, "db")}      ${dbDir}`);
   say(`  ${paint(dim, "port")}    ${port}`);
-  say(`  ${paint(dim, "mode")}    ${mode === "tailscale" ? "anywhere (public HTTPS, Verbbe only on the phone)" : "home Wi-Fi"}`);
+  say(`  ${paint(dim, "mode")}    ${modeLabel}`);
   say();
 
-  if (mode === "lan" && previous.VERBBE_FUNNEL === "1") {
-    note(paint(dim, "  Turning off the public Funnel link…"));
+  if (mode === "lan" && (previous.VERBBE_FUNNEL === "1" || previous.VERBBE_MODE === "funnel" || previous.VERBBE_MODE === "tailscale")) {
+    note(paint(dim, "  Turning off public HTTPS…"));
     resetProxies();
   }
 
-  if (mode === "tailscale") {
+  if (mode === "funnel") {
     await ensureTailscale(args);
     say();
   }
 
-  writeEnv({ music, port, name, mode, funnel: false, publicAway: false });
+  let setupToken = previous.SETUP_TOKEN || "";
+  if (mode === "funnel" && !setupToken) setupToken = randomSecret();
+
+  writeEnv({ music, port, name, mode, funnel: false, publicAway: false, data: dataDir, dbData: dbDir, setupToken });
+
+  if (mode === "funnel") {
+    note(`  ${paint(dim, "setup token")}  ${setupToken}`);
+    note(paint(dim, "  First admin must send this token. Funnel stays off until it exists."));
+    say();
+  }
 
   const existing = await probeServer(port);
   if (existing) {
+    syncComposeEnv();
     say(`  ${paint(lime, "●")}  ${existing.name || name} ${paint(dim, existing.version || "")} is already running`);
     say();
   } else if (args.native) {
-    await startNative({ music, port, name, serverDir, mode, args });
+    await startNative({ music, port, name, serverDir, mode, args, dataDir, setupToken });
     return;
   } else {
     const compose = await ensureDocker();
     ensureCompose(serverDir);
-    say(paint(dim, "  Building and starting the container…"));
+    say(paint(dim, "  Building and starting Postgres, Redis, API and worker…"));
     say();
     run(compose.bin, [...compose.prefix, ...composeArgs(["up", "-d", "--build"])], {
       env: composeEnv(),
-      failMessage: "Could not start the Verbbe container",
+      failMessage: "Could not start the Verbbe stack",
     });
 
     say(paint(dim, "  Waiting for the server…"));
     const info = await waitForServer(port);
     say();
     if (info) say(`  ${paint(lime, "●")}  ${info.name || name} ${paint(dim, info.version || "")} is up`);
-    else say(`  ${paint(dim, "●")}  container is up — give it a few seconds if the page is empty`);
+    else say(`  ${paint(dim, "●")}  containers are up — give it a few seconds if the page is empty`);
     say();
   }
 
   let funnel = false;
   let publicAway = false;
-  if (mode === "tailscale") {
+  if (mode === "funnel") {
     const interactive = Boolean(process.stdin.isTTY) && !args.yes;
     const away = await enableFunnel(port, interactive);
     funnel = true;
     publicAway = Boolean(away?.ok);
-    writeEnv({ music, port, name, mode, funnel, publicAway });
+    writeEnv({ music, port, name, mode, funnel, publicAway, data: dataDir, dbData: dbDir, setupToken });
+    syncComposeEnv();
     say();
   }
 
+  startOpenFolderHelper(music, dataDir);
   await printEndpoints(mode, port, publicAway || null);
+  if (mode === "funnel" && setupToken) {
+    say(`  ${paint(dim, "Setup token")}  ${setupToken}`);
+    say();
+  }
   if (!args.noOpen) openUrl(`http://127.0.0.1:${port}`);
 }
 
@@ -1008,7 +1256,7 @@ async function startNative({ music, port, name, serverDir, mode, args }) {
     run("npm", ["run", "build"], { cwd: serverDir });
   }
 
-  if (mode === "tailscale") {
+  if (mode === "funnel") {
     const interactive = Boolean(process.stdin.isTTY) && !args.yes;
     const away = await enableFunnel(port, interactive);
     writeEnv({
@@ -1025,20 +1273,35 @@ async function startNative({ music, port, name, serverDir, mode, args }) {
   say(paint(dim, "  Starting Node server (Ctrl+C to stop)…"));
   say();
   await printEndpoints(mode, port);
+  const saved = readEnvFile();
+  if (!process.env.DATABASE_URL) {
+    fail("Native mode needs DATABASE_URL and REDIS_URL. Omit --native to run Postgres, Redis, API and worker in Docker.");
+  }
+  const childEnv = {
+    ...process.env,
+    PORT: String(port),
+    DATA_DIR: dataDir,
+    MUSIC_DIR: music,
+    SERVER_NAME: name,
+    TRUST_PROXY: mode === "funnel" ? "1" : "0",
+    LAN_URLS: advertisedEnv(mode, port).lan,
+    AWAY_URL: advertisedEnv(mode, port).away,
+    SETUP_TOKEN: saved.SETUP_TOKEN || "",
+    VERBBE_ROLE: "server",
+  };
+  const worker = spawn("node", ["dist/worker.js"], {
+    cwd: serverDir,
+    stdio: "inherit",
+    env: { ...childEnv, VERBBE_ROLE: "worker" },
+  });
   const child = spawn("node", ["dist/index.js"], {
     cwd: serverDir,
     stdio: "inherit",
-    env: {
-      ...process.env,
-      PORT: String(port),
-      DATA_DIR: dataDir,
-      MUSIC_DIR: music,
-      SERVER_NAME: name,
-      TRUST_PROXY: mode === "tailscale" ? "1" : "0",
-    },
+    env: childEnv,
   });
   const stop = () => {
-    if (mode === "tailscale") resetProxies();
+    if (mode === "funnel") resetProxies();
+    worker.kill("SIGTERM");
     child.kill("SIGTERM");
   };
   process.on("SIGINT", stop);
@@ -1052,6 +1315,7 @@ async function startNative({ music, port, name, serverDir, mode, args }) {
 }
 
 function cmdStop() {
+  stopOpenFolderHelper();
   const saved = readEnvFile();
   if (saved.VERBBE_FUNNEL === "1" || saved.VERBBE_MODE === "tailscale") {
     note(paint(dim, "  Turning off the public Funnel link…"));
@@ -1081,6 +1345,7 @@ function cmdStop() {
 }
 
 async function cmdUninstall(args) {
+  stopOpenFolderHelper();
   const saved = readEnvFile();
   const interactive = Boolean(process.stdin.isTTY) && !args.yes;
   note("");
@@ -1123,19 +1388,16 @@ async function cmdUninstall(args) {
   try {
     rmSync(composePath, { force: true });
   } catch {
-    /* ignore */
   }
   if (wipe) {
     try {
       rmSync(join(configDir, "data"), { recursive: true, force: true });
     } catch {
-      /* ignore */
-    }
+  }
     try {
       rmSync(envPath, { force: true });
     } catch {
-      /* ignore */
-    }
+  }
   }
   say(paint(lime, "  uninstalled"));
   say(paint(dim, wipe
@@ -1165,20 +1427,17 @@ async function cmdUrl() {
   const port = saved.VERBBE_PORT || String(DEFAULT_PORT);
   const mode = normalizeMode(saved.VERBBE_MODE) || "lan";
   const urls = accessURLs(mode, port);
-  if (mode === "tailscale") {
-    say("Home (same Wi-Fi):");
-    say(`  ${urls.home}`);
-    const away = await probePublicAway();
-    if (away.ok) {
-      say("Away (anyone with Verbbe, no Tailscale on the phone):");
+  say("Home (same Wi-Fi):");
+  say(`  ${urls.home}`);
+  if (mode === "funnel") {
+    if (urls.remote.startsWith("https://")) {
+      say("Away (from anywhere):");
       say(`  ${urls.remote}`);
     } else {
-      say(`Away is not public yet (${away.detail}).`);
-      say("  Re-run: verbbe start --mode tailscale");
+      say("Away is not ready yet.");
+      say("  Re-run: verbbe start --mode funnel");
     }
-    return;
   }
-  say(urls.home);
 }
 
 function cmdLogs(args) {
@@ -1210,6 +1469,70 @@ if (args.help || command === "help") {
   process.exit(0);
 }
 
+function newestSqlDump(backupDir) {
+  if (!existsSync(backupDir)) return null;
+  const files = readdirSync(backupDir)
+    .filter((name) => name.startsWith("postgres-") && name.endsWith(".sql"))
+    .sort();
+  const last = files[files.length - 1];
+  return last ? join(backupDir, last) : null;
+}
+
+function cmdBackup() {
+  const saved = readEnvFile();
+  const dataDir = saved.VERBBE_DATA || join(configDir, "data");
+  const backupDir = join(dataDir, "backups");
+  mkdirSync(backupDir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const sqlName = `postgres-${stamp}.sql`;
+  const sqlPath = join(backupDir, sqlName);
+  const tarPath = join(backupDir, `verbbe-${stamp}.tgz`);
+  const compose = dockerCompose();
+  if (!compose || !existsSync(composePath)) fail("Server is not installed. Run: verbbe start");
+  note(paint(dim, "  Dumping Postgres…"));
+  const dump = spawnSync(compose.bin, [...compose.prefix, ...composeArgs(["exec", "-T", "postgres", "pg_dump", "-U", saved.DB_USERNAME || "verbbe", saved.DB_DATABASE || "verbbe"])], {
+    encoding: "utf8",
+    env: composeEnv(),
+    maxBuffer: 512 * 1024 * 1024,
+  });
+  if (dump.status !== 0) fail((dump.stderr || "pg_dump failed").trim());
+  writeFileSync(sqlPath, dump.stdout);
+  const tar = spawnSync("tar", ["-czf", tarPath, "-C", dataDir, "artwork", "secrets.json", `backups/${sqlName}`], { encoding: "utf8" });
+  if (tar.status !== 0) fail((tar.stderr || "tar failed").trim());
+  say(tarPath);
+}
+
+function cmdRestore(args) {
+  const file = args._[1];
+  if (!file) fail("Usage: verbbe restore FILE.tgz");
+  const abs = expandHome(file);
+  if (!existsSync(abs)) fail(`File not found: ${abs}`);
+  const saved = readEnvFile();
+  const dataDir = saved.VERBBE_DATA || join(configDir, "data");
+  mkdirSync(dataDir, { recursive: true });
+  const compose = dockerCompose();
+  if (!compose || !existsSync(composePath)) fail("Server is not installed. Run: verbbe start");
+  note(paint(dim, "  Stopping API and worker…"));
+  run(compose.bin, [...compose.prefix, ...composeArgs(["stop", "server", "worker"])], { env: composeEnv(), allowFail: true });
+  note(paint(dim, "  Extracting archive…"));
+  const tar = spawnSync("tar", ["-xzf", abs, "-C", dataDir], { encoding: "utf8" });
+  if (tar.status !== 0) fail((tar.stderr || "tar extract failed").trim());
+  const sqlPath = newestSqlDump(join(dataDir, "backups"));
+  if (!sqlPath) fail("Archive has no Postgres dump");
+  note(paint(dim, "  Restoring Postgres…"));
+  run(compose.bin, [...compose.prefix, ...composeArgs(["up", "-d", "postgres"])], { env: composeEnv() });
+  const sql = readFileSync(sqlPath);
+  const restore = spawnSync(compose.bin, [...compose.prefix, ...composeArgs(["exec", "-T", "postgres", "psql", "-U", saved.DB_USERNAME || "verbbe", "-d", saved.DB_DATABASE || "verbbe"])], {
+    input: sql,
+    encoding: "utf8",
+    env: composeEnv(),
+    maxBuffer: 512 * 1024 * 1024,
+  });
+  if (restore.status !== 0) fail((restore.stderr || "psql restore failed").trim());
+  run(compose.bin, [...compose.prefix, ...composeArgs(["up", "-d"])], { env: composeEnv() });
+  say(paint(lime, "  restored"));
+}
+
 const commands = {
   start: () => cmdStart(args),
   stop: () => cmdStop(),
@@ -1221,6 +1544,8 @@ const commands = {
   url: () => cmdUrl(),
   logs: () => cmdLogs(args),
   open: () => cmdOpen(),
+  backup: () => cmdBackup(),
+  restore: () => cmdRestore(args),
 };
 
 if (!commands[command]) fail(`Unknown command: ${command}\n\nRun verbbe help`);
