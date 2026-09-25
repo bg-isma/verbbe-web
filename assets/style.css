@@ -90,7 +90,8 @@ body:not(.site) {
   padding: 3px;
 }
 
-.lang-switch button {
+.lang-switch button,
+.lang-switch a {
   appearance: none;
   border: 0;
   background: transparent;
@@ -101,9 +102,12 @@ body:not(.site) {
   padding: 7px 11px;
   border-radius: 999px;
   cursor: pointer;
+  text-decoration: none;
 }
 
-.lang-switch button[aria-pressed="true"] {
+.lang-switch button[aria-pressed="true"],
+.lang-switch a[aria-pressed="true"],
+.lang-switch a[aria-current="true"] {
   background: var(--accent);
   color: var(--on-card);
 }
@@ -1322,7 +1326,8 @@ body.site.has-cursor .cursor-dot {
     font-size: 16px;
   }
 
-  .lang-switch button {
+  .lang-switch button,
+  .lang-switch a {
     min-height: 32px;
     padding: 7px 10px;
   }

@@ -184,11 +184,14 @@ body.menu-open .yv-menu-btn .nav-toggle-close { display: block; }
   background: #2f2e30;
 }
 
-.yv-bar .lang-switch button {
+.yv-bar .lang-switch button,
+.yv-bar .lang-switch a {
   color: rgba(254, 254, 254, 0.55);
 }
 
-.yv-bar .lang-switch button[aria-pressed="true"] {
+.yv-bar .lang-switch button[aria-pressed="true"],
+.yv-bar .lang-switch a[aria-pressed="true"],
+.yv-bar .lang-switch a[aria-current="true"] {
   background: var(--accent);
   color: #121113;
 }

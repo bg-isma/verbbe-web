@@ -93,7 +93,8 @@
   let visibleCount = PAGE_SIZE;
 
   function lang() {
-    return document.documentElement.dataset.lang === "en" ? "en" : "es";
+    const value = (document.documentElement.lang || document.documentElement.dataset.lang || "es").toLowerCase();
+    return value.indexOf("en") === 0 ? "en" : "es";
   }
 
   function fold(value) {
@@ -288,7 +289,7 @@
   const embedded = embeddedCatalog();
   if (embedded) useCatalog(embedded);
 
-  fetch("artists.json", { cache: "no-cache" })
+  fetch("/artists.json", { cache: "no-cache" })
     .then((res) => {
       if (!res.ok) throw new Error("artists.json");
       return res.json();

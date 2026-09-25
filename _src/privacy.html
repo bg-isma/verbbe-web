@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#121113" />
+    <meta name="color-scheme" content="dark" />
+    <title>Verbbe — Privacy Policy</title>
+    <meta name="description" content="Privacy Policy of Verbbe. Data collection, use, retention, and deletion." />
+    <link rel="canonical" href="https://verbbe.com/privacy.html" />
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+    <meta property="og:url" content="https://verbbe.com/privacy.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/site.css" />
+    <script>
+      (function () {
+        var q = new URLSearchParams(location.search).get("lang");
+        var s = null;
+        try {
+          s = localStorage.getItem("verbbe.lang");
+        } catch (_) {}
+        var n = (navigator.language || "").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+        var lang = q === "es" || q === "en" ? q : s === "es" || s === "en" ? s : n;
+        document.documentElement.lang = lang;
+        document.documentElement.dataset.lang = lang;
+      })();
+    </script>
+  </head>
+  <body class="site yv is-doc">
+    <a class="skip" href="#doc">
+      <span class="lang-es">Saltar al contenido</span>
+      <span class="lang-en">Skip to content</span>
+    </a>
+    <header class="yv-bar">
+      <button type="button" class="yv-menu-btn" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+        <span class="lang-es">Menú</span>
+        <span class="lang-en">Menu</span>
+        <svg viewBox="0 0 18 18" aria-hidden="true">
+          <path class="nav-toggle-open" d="M3 5h12M3 9h12M3 13h12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path class="nav-toggle-close" d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <a class="yv-logo" href="index.html">
+        <img src="assets/logo.svg" width="30" height="22" alt="" />
+        <span translate="no">Verbbe</span>
+      </a>
+      <div class="yv-end">
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" data-lang-btn="es">ES</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+        <a class="yv-cta" href="https://apps.apple.com/app/verbbe" rel="noopener">App Store</a>
+      </div>
+    </header>
+    <div class="yv-overlay" id="site-nav" data-menu aria-hidden="true">
+      <button type="button" class="yv-overlay-close" data-nav-close>
+        <svg viewBox="0 0 18 18" aria-hidden="true">
+          <path d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span class="lang-es">Cerrar</span>
+        <span class="lang-en">Close</span>
+      </button>
+      <div class="yv-overlay-inner">
+        <p class="yv-overlay-kicker">Verbbe</p>
+        <div class="lang-switch yv-overlay-lang" role="group" aria-label="Language">
+          <button type="button" data-lang-btn="es">ES</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+        <nav class="yv-overlay-nav" aria-label="Verbbe">
+          <a href="index.html#app" style="--i:0"><span class="lang-es">App</span><span class="lang-en">App</span></a>
+          <a href="index.html#server" style="--i:1"><span class="lang-es">Servidor</span><span class="lang-en">Server</span></a>
+          <a href="index.html#verbena" style="--i:2" translate="no">Verbena</a>
+          <a href="artists.html" style="--i:3"><span class="lang-es">Artistas</span><span class="lang-en">Artists</span></a>
+          <a href="privacy.html" style="--i:4" aria-current="page"><span class="lang-es">Legal</span><span class="lang-en">Legal</span></a>
+        </nav>
+        <a class="yv-overlay-cta" href="index.html">
+          <span class="lang-es">Volver a inicio</span>
+          <span class="lang-en">Back home</span>
+        </a>
+      </div>
+    </div>
+    <div class="doc-wrap" id="doc">
+      <header class="nav">
+        <a class="back" href="index.html">
+          <span class="lang-es visually-hidden">Atrás</span>
+          <span class="lang-en visually-hidden">Back</span>
+          <svg viewBox="0 0 17 16" fill="none" aria-hidden="true">
+            <path d="M10.52 3.5L5.9 8l4.62 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <h1>
+          <span class="lang-es">Política de privacidad</span>
+          <span class="lang-en">Privacy Policy</span>
+        </h1>
+        <span></span>
+      </header>
+
+      <article class="doc">
+        <div class="lang-es">
+          <p>Esta política describe qué datos trata Verbbe, cómo se usan, si se comparten y cómo puedes borrarlos. Verbbe es un reproductor de archivos de audio que ya tienes. No es una tienda de música ni un servicio comercial de streaming, y no opera un catálogo de canciones.</p>
+
+          <h2>Quién es el responsable</h2>
+          <p>Verbbe la desarrolla bgisma. Contacto y código: <a href="https://github.com/bg-isma">https://github.com/bg-isma</a>. El desarrollador no aloja tu música, no opera un backend de usuarios en la nube y no vende datos.</p>
+
+          <h2>Puedes usar la app sin cuenta</h2>
+          <p>La función principal es reproducir archivos locales en este iPhone o iPad. No hace falta crear una cuenta ni iniciar sesión. El servidor self-hosted es opcional.</p>
+
+          <h2>Qué datos se tratan</h2>
+          <p><strong>Biblioteca local (en este dispositivo).</strong> Canciones, álbumes, playlists, carátulas, letras incrustadas, favoritos e historial de reproducción se guardan en el iPhone, dentro de la app o en las carpetas que tú vinculas. Si vinculas una carpeta de Archivos, Verbbe la lee en vivo con los marcadores de seguridad de iOS. Esa carpeta no se sube a ningún servidor del desarrollador.</p>
+          <p><strong>Servidor Verbbe self-hosted (opcional).</strong> Si pegas la URL de un servidor que tú administras — en tu red o un enlace HTTPS publicado con Tailscale Funnel — la app envía a esa máquina, y solo a esa máquina:</p>
+          <ul>
+            <li>nombre, correo y contraseña al crear la primera cuenta de administrador o al iniciar sesión</li>
+            <li>tokens de sesión (en el llavero de este iPhone)</li>
+            <li>peticiones de biblioteca, tickets de reproducción, carátulas y letras indexadas en ese servidor</li>
+            <li>favoritos, playlists y recuento de reproducción asociados a tu usuario en ese servidor</li>
+          </ul>
+          <p>Esos datos viven en el equipo que publica el servidor. El desarrollador de Verbbe no recibe una copia, no puede acceder a tu servidor y no opera un servicio de streaming para el público.</p>
+          <p>Si eliges acceso desde cualquier sitio, el CLI instala Tailscale <strong>solo en tu ordenador</strong> y publica un enlace HTTPS (Funnel) cuando ese nombre ya existe en el DNS público. Quien tenga la URL ve la pantalla de inicio de sesión. El iPhone y el resto de dispositivos <strong>no</strong> instalan Tailscale: solo Verbbe. El tráfico de ese túnel pasa por la infraestructura de Tailscale, que tiene su propia <a href="https://tailscale.com/privacy-policy">política de privacidad</a>. Verbbe no envía tu música ni tus cuentas al desarrollador.</p>
+          <p><strong>Verbena (sesiones cerca, opcional).</strong> Verbena conecta iPhones en la misma red local para escuchar juntos. El tráfico va de dispositivo a dispositivo (Bonjour). El desarrollador no intermedia la sesión y no recibe tu catálogo.</p>
+          <p>Mientras la app está abierta puede detectar verbenas en tu red. Si haces de anfitrión, se anuncia el nombre de este dispositivo y que hay una sesión. Quien se une con el código de seis caracteres — escrito, con un enlace <code>verbbe://jam/…</code> o escaneando el código visual — recibe metadatos de la biblioteca del anfitrión (títulos, artistas, álbumes, playlists) y el estado de reproducción. No se envían los archivos de audio, las letras ni las carpetas vinculadas. Los nombres de los dispositivos aparecen como participantes. Al salir o terminar la sesión, el invitado deja de ver ese catálogo.</p>
+          <p><strong>Permisos del sistema.</strong> Fotos: solo si eliges una imagen para crear una carátula. Cámara: solo si escaneas el código de una verbena; el vídeo se procesa en este dispositivo para leer el código y no se guarda ni se envía. Red local: si conectas un servidor en tu red o si hay una verbena cerca. Pantalla de bloqueo y Ahora suena: muestran lo que está sonando en este dispositivo. Verbbe no pide ubicación, contactos, micrófono ni seguimiento (ATT).</p>
+
+          <h2>Cómo se usan</h2>
+          <p>Solo para reproducir y organizar tu música, mantener la sesión con tu servidor, mostrar carátulas o letras, y — si usas Verbena — sincronizar el catálogo y el control de reproducción entre los dispositivos que se unen. No hay publicidad, analítica de terceros ni perfiles publicitarios.</p>
+
+          <h2>Compartir con terceros</h2>
+          <p>Verbbe no vende tus datos y no los comparte con anunciantes, redes publicitarias ni herramientas de analítica. No hay SDK de seguimiento.</p>
+          <p>Si usas Verbena, los metadatos de la biblioteca del anfitrión y los nombres de dispositivo se comparten con los demás participantes en tu red local. Eso no es una cesión al desarrollador ni a anunciantes.</p>
+          <p>Si abres Privacidad, Aviso legal, Términos o GitHub desde Configuración, se muestran en Safari dentro de la app. Esas webs aplican sus propias políticas. Este sitio legal está en <a href="https://verbbe.com/privacy.html">verbbe.com</a>.</p>
+          <p>Si dejas una propina en la app, el pago lo procesa Apple como compra in-app. Verbbe no recibe los datos de tu tarjeta. La propina es opcional y no desbloquea funciones.</p>
+          <p>La sección Apoyar al artista puede descargar una lista pública de enlaces (tienda, merch, web) desde verbbe.com. La app no envía el nombre del artista a ese servidor: cruza la lista en el dispositivo y solo abre URLs HTTPS que ya están en ese JSON. Recargar vuelve a bajar el archivo. Enviar un enlace abre un formulario de Google; ese servicio aplica su propia política. El desarrollador revisa a mano lo que se publica.</p>
+
+          <h2>Conservación y cómo borrar tus datos</h2>
+          <p>En local: desvincula carpetas, borra playlists o desinstala Verbbe. Desinstalar elimina los datos de la app en este dispositivo.</p>
+          <p>En una verbena: salir o cerrar la sesión deja de compartir. El iPhone del invitado deja de mostrar el catálogo del anfitrión.</p>
+          <p>Si estás conectado a un servidor: Cerrar sesión / Desconectar en Configuración borra los tokens de este iPhone. No borra la música ni las cuentas del servidor. El administrador de ese servidor puede borrar usuarios no administradores en la pantalla de usuarios. Para borrar la cuenta de administrador y todo el catálogo remoto, borra los datos del servidor en la máquina donde corre (carpeta de datos del servidor) o deja de usar ese servidor.</p>
+          <p>Puedes pedir información o la supresión de cualquier dato que el desarrollador pudiera llegar a tener escribiendo en <a href="https://github.com/bg-isma">GitHub</a>. En el uso normal, el desarrollador no almacena tu biblioteca ni tus cuentas.</p>
+
+          <h2>Menores</h2>
+          <p>Verbbe no está dirigida a menores de 13 años y no recopila a sabiendas datos de niños. Si eres padre o tutor y crees que un menor nos ha facilitado datos, contacta por GitHub para que los borremos si existieran.</p>
+
+          <h2>Cambios</h2>
+          <p>Si esta política cambia, actualizaremos la fecha de abajo y la copia publicada en esta URL. El uso continuado de la app tras un cambio implica que has leído la versión vigente.</p>
+        </div>
+
+        <div class="lang-en">
+          <p>This policy describes what data Verbbe processes, how it is used, whether it is shared, and how you can delete it. Verbbe is a player for audio files you already have. It is not a music store or a commercial streaming service, and it does not operate a song catalog.</p>
+
+          <h2>Who is responsible</h2>
+          <p>Verbbe is developed by bgisma. Contact and source: <a href="https://github.com/bg-isma">https://github.com/bg-isma</a>. The developer does not host your music, does not run a cloud user backend, and does not sell data.</p>
+
+          <h2>You can use the app without an account</h2>
+          <p>The core feature is playing local files on this iPhone or iPad. You do not need to create an account or sign in. The self-hosted server is optional.</p>
+
+          <h2>What data is processed</h2>
+          <p><strong>Local library (on this device).</strong> Songs, albums, playlists, covers, embedded lyrics, favorites, and playback history are stored on this iPhone, inside the app or in the folders you link. If you link a Files folder, Verbbe reads it live using iOS security-scoped bookmarks. That folder is not uploaded to any developer-operated server.</p>
+          <p><strong>Optional self-hosted Verbbe server.</strong> If you paste the URL of a server that you run — on your network or an HTTPS link published with Tailscale Funnel — the app sends to that machine, and only that machine:</p>
+          <ul>
+            <li>name, email, and password when creating the first admin account or signing in</li>
+            <li>session tokens (stored in this iPhone’s Keychain)</li>
+            <li>library requests, playback tickets, artwork, and lyrics indexed on that server</li>
+            <li>favorites, playlists, and play counts for your user on that server</li>
+          </ul>
+          <p>That data lives on the machine that runs the server. The Verbbe developer does not receive a copy, cannot access your server, and does not operate a public streaming service.</p>
+          <p>If you choose access from anywhere, the CLI installs Tailscale <strong>only on your computer</strong> and publishes an HTTPS Funnel link once that name exists in public DNS. Anyone who has the URL sees the sign-in screen. The iPhone and other devices <strong>do not</strong> install Tailscale — only Verbbe. Traffic for that tunnel goes through Tailscale’s infrastructure, which has its own <a href="https://tailscale.com/privacy-policy">privacy policy</a>. Verbbe does not send your music or accounts to the developer.</p>
+          <p><strong>Verbena (optional nearby sessions).</strong> Verbena connects iPhones on the same local network so you can listen together. Traffic goes device to device (Bonjour). The developer does not relay the session and does not receive your catalog.</p>
+          <p>While the app is open it can detect verbenas on your network. If you host, this device’s name and the fact that a session exists are advertised. Anyone who joins with the six-character code — typed, via a <code>verbbe://jam/…</code> link, or by scanning the visual code — receives metadata from the host’s library (titles, artists, albums, playlists) and playback state. Audio files, lyrics, and linked folders are not sent. Device names appear as participants. When you leave or the session ends, the guest stops seeing that catalog.</p>
+          <p><strong>System permissions.</strong> Photos: only if you pick an image to create a cover. Camera: only if you scan a verbena code; video is processed on this device to read the code and is not saved or uploaded. Local network: if you connect a server on your network or a verbena is nearby. Lock screen and Now Playing: show what is playing on this device. Verbbe does not request location, contacts, microphone, or tracking (ATT).</p>
+
+          <h2>How the data is used</h2>
+          <p>Only to play and organize your music, keep your session with your server, show covers or lyrics, and — if you use Verbena — sync the catalog and playback control among the devices that join. There is no advertising, third-party analytics, or advertising profiling.</p>
+
+          <h2>Sharing with third parties</h2>
+          <p>Verbbe does not sell your data and does not share it with advertisers, ad networks, or analytics tools. There is no tracking SDK.</p>
+          <p>If you use Verbena, the host’s library metadata and device names are shared with the other participants on your local network. That is not a transfer to the developer or to advertisers.</p>
+          <p>If you open Privacy, Legal notice, Terms, or GitHub from Settings, they appear in Safari inside the app. Those sites have their own policies. This legal site is at <a href="https://verbbe.com/privacy.html">verbbe.com</a>.</p>
+          <p>If you leave a tip in the app, Apple processes the payment as an In-App Purchase. Verbbe does not receive your card details. The tip is optional and does not unlock features.</p>
+          <p>The Support the artist section may download a public list of links (store, merch, site) from verbbe.com. The app does not send the artist name to that server: it matches the list on-device and only opens HTTPS URLs already in that JSON. Reload downloads the file again. Submitting a link opens a Google Form; that service has its own policy. The developer reviews what gets published by hand.</p>
+
+          <h2>Retention and how to delete your data</h2>
+          <p>Locally: unlink folders, delete playlists, or uninstall Verbbe. Uninstalling removes the app’s data on this device.</p>
+          <p>In a verbena: leaving or ending the session stops sharing. The guest iPhone stops showing the host’s catalog.</p>
+          <p>If you are connected to a server: Sign out / Disconnect in Settings removes tokens from this iPhone. It does not delete music or accounts on the server. The administrator of that server can delete non-admin users on the Users screen. To delete the admin account and the remote catalog, delete the server data on the machine that runs it (the server data folder) or stop using that server.</p>
+          <p>You can ask about or request deletion of any data the developer might hold via <a href="https://github.com/bg-isma">GitHub</a>. In normal use, the developer does not store your library or your accounts.</p>
+
+          <h2>Children</h2>
+          <p>Verbbe is not directed at children under 13 and does not knowingly collect data from children. If you are a parent or guardian and believe a child has provided data to us, contact us on GitHub so we can delete it if it exists.</p>
+
+          <h2>Changes</h2>
+          <p>If this policy changes, we will update the date below and the copy published at this URL. Continued use of the app after a change means you have read the current version.</p>
+        </div>
+        <p class="updated">
+          <span class="lang-es">Actualizado el 22 de agosto de 2026.</span>
+          <span class="lang-en">Updated 22 August 2026.</span>
+        </p>
+      </article>
+    </div>
+    <script src="assets/app.js"></script>
+    <script src="assets/site.js"></script>
+  </body>
+</html>

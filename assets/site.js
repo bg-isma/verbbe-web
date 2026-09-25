@@ -142,12 +142,16 @@
           copyBtn.classList.add("is-done");
           const es = copyBtn.querySelector(".lang-es");
           const en = copyBtn.querySelector(".lang-en");
+          const done = lang() === "en" ? "Copied" : "Copiado";
+          const idle = lang() === "en" ? "Copy" : "Copiar";
           if (es) es.textContent = "Copiado";
           if (en) en.textContent = "Copied";
+          if (!es && !en) copyBtn.textContent = done;
           setTimeout(() => {
             copyBtn.classList.remove("is-done");
             if (es) es.textContent = "Copiar";
             if (en) en.textContent = "Copy";
+            if (!es && !en) copyBtn.textContent = idle;
           }, 1400);
         } catch (_) {}
       });
@@ -218,28 +222,28 @@
 
   const screens = {
     home: {
-      src: "assets/device/home.png",
+      src: "/assets/device/home.webp",
       es: "Carrusel de álbumes, hechas para ti y el mini player.",
       en: "Album carousel, made-for-you rows, and the mini player.",
       altEs: "Inicio de Verbbe con el carrusel de álbumes",
       altEn: "Verbbe Home with the album carousel",
     },
     player: {
-      src: "assets/device/player.png",
+      src: "/assets/device/player.webp",
       es: "Pantalla completa, letras si el archivo las trae, cola y favoritos.",
       en: "Full player, lyrics if the file has them, queue, and favorites.",
       altEs: "Reproductor a pantalla completa de Verbbe",
       altEn: "Verbbe full-screen player",
     },
     library: {
-      src: "assets/device/library.png",
+      src: "/assets/device/library.webp",
       es: "Canciones, álbumes, artistas, géneros y playlists de esta fuente.",
       en: "Songs, albums, artists, genres, and playlists from this source.",
       altEs: "Biblioteca de Verbbe",
       altEn: "Verbbe library",
     },
     server: {
-      src: "assets/device/server.png",
+      src: "/assets/device/server.webp",
       es: "Pegas la URL del PC. Local y servidor no se mezclan.",
       en: "Paste the PC URL. Local and server stay apart.",
       altEs: "Pantalla para conectar el servidor Verbbe",
@@ -256,7 +260,8 @@
   let stageQueued = null;
 
   function lang() {
-    return document.documentElement.dataset.lang === "en" ? "en" : "es";
+    const value = (document.documentElement.lang || document.documentElement.dataset.lang || "es").toLowerCase();
+    return value.indexOf("en") === 0 ? "en" : "es";
   }
 
   function screenCopy(screen) {
@@ -271,6 +276,7 @@
       const en = stageCap.querySelector(".lang-en");
       if (es) es.textContent = screen.es;
       if (en) en.textContent = screen.en;
+      if (!es && !en) stageCap.textContent = copy.cap;
     }
     screenButtons.forEach((btn) => {
       const on = btn.dataset.screen === id;

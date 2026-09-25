@@ -1,8 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://verbbe.com/</loc></url>
-  <url><loc>https://verbbe.com/artists.html</loc></url>
-  <url><loc>https://verbbe.com/privacy.html</loc></url>
-  <url><loc>https://verbbe.com/legal.html</loc></url>
-  <url><loc>https://verbbe.com/terms.html</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://verbbe.com/es/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/es/artists/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/artists/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/artists/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/artists/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/es/privacy/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/privacy/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/privacy/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/privacy/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/es/legal/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/legal/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/legal/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/legal/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/es/terms/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/terms/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/terms/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/terms/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/en/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/en/artists/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/artists/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/artists/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/artists/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/en/privacy/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/privacy/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/privacy/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/privacy/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/en/legal/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/legal/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/legal/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/legal/" />
+  </url>
+  <url>
+    <loc>https://verbbe.com/en/terms/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://verbbe.com/es/terms/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://verbbe.com/en/terms/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://verbbe.com/es/terms/" />
+  </url>
 </urlset>

@@ -1963,11 +1963,6 @@
       ],
       "links": [
         {
-          "type": "store",
-          "label": "Tienda",
-          "url": "https://joshwoodward.bandcamp.com"
-        },
-        {
           "type": "site",
           "label": "Web",
           "url": "https://www.joshwoodward.com"

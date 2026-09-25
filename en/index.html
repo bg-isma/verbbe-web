@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#121113" name="theme-color"/>
+<meta content="dark" name="color-scheme"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<title>Verbbe — Your music, at home</title><meta content="iOS player for the audio files you already have. On iPhone, in CarPlay, or from a server you run. No third-party catalog." name="description"/><link href="https://verbbe.com/en/" rel="canonical"/><link href="/favicon.svg" rel="icon" type="image/svg+xml"/><link href="/assets/app-icon.png" rel="apple-touch-icon"/><link href="https://verbbe.com/es/" hreflang="es" rel="alternate"/><link href="https://verbbe.com/en/" hreflang="en" rel="alternate"/><link href="https://verbbe.com/es/" hreflang="x-default" rel="alternate"/><meta content="website" property="og:type"/><meta content="Verbbe" property="og:site_name"/><meta content="https://verbbe.com/en/" property="og:url"/><meta content="Verbbe — Your music, at home" property="og:title"/><meta content="Play the files on your iPhone. Optionally stream the folder on your computer." property="og:description"/><meta content="https://verbbe.com/assets/og.png" property="og:image"/><meta content="1200" property="og:image:width"/><meta content="630" property="og:image:height"/><meta content="Verbbe" property="og:image:alt"/><meta content="en_US" property="og:locale"/><meta content="es_ES" property="og:locale:alternate"/><meta content="summary_large_image" name="twitter:card"/><meta content="Verbbe — Your music, at home" name="twitter:title"/><meta content="Play the files on your iPhone. Optionally stream the folder on your computer." name="twitter:description"/><meta content="https://verbbe.com/assets/og.png" name="twitter:image"/><link href="/assets/fonts.css" rel="stylesheet"/><link href="/assets/style.css" rel="stylesheet"/><link href="/assets/site.css" rel="stylesheet"/><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": "Verbbe",
+      "url": "https://verbbe.com/en/",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Verbbe",
+      "url": "https://verbbe.com/en/",
+      "applicationCategory": "MusicApplication",
+      "operatingSystem": "iOS",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "description": "iOS player for the audio files you already have. On iPhone, in CarPlay, or from a server you run. No third-party catalog.",
+      "image": "https://verbbe.com/assets/og.png",
+      "downloadUrl": "https://apps.apple.com/app/verbbe",
+      "author": {
+        "@type": "Organization",
+        "name": "Verbbe",
+        "url": "https://verbbe.com/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Verbbe",
+        "url": "https://verbbe.com/"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Do I need the server?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The core is local. The server is for the PC folder and for listening away from home."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where is the /music folder?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It only exists inside Docker. On the Mac or PC it’s ~/Music (or your --music path). The panel can open it in Finder or Explorer."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the API key for?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For scripts or other apps. The iPhone signs in with email and password. If you don’t have an integration, you don’t need one."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where does it store data?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Songs stay in your folder. The catalog (Postgres), artwork, and secrets go to ~/.verbbe for your Mac or PC user, not a fixed account. Backup: verbbe backup ."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I uninstall it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use the Remove console: verbbe uninstall . It asks whether to delete the catalog. Music is not deleted. Pause only: verbbe stop . Keep data: --keep-data ."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it always install for the same user?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It uses whoever runs the CLI: their ~/Music and their ~/.verbbe . If that Mac account is ismael, those are ismael’s paths; on Ana’s machine, Ana’s."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it play Spotify, Apple Music, or YouTube?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It doesn’t connect to those catalogs. You play files you have, here or on a server you run."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does the iPhone install Tailscale?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Tailscale runs only on the computer. The phone only needs Verbbe, the URL (home or Away), and your user."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there Android?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not yet. The app is iOS 17+. Google Play is on the way, no date."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does it cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The app is free. There’s an optional tip through Apple; it doesn’t unlock features. You run the server."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who sees my music?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nobody on the developer’s side. Locally, this iPhone. On a server, that machine’s accounts. In a Verbena, whoever has the code on your network."
+          }
+        }
+      ]
+    }
+  ]
+}</script></head>
+<body class="site yv">
+<a class="skip" href="#main">
+
+Skip to content
+</a>
+<header class="yv-bar">
+<button aria-controls="site-nav" aria-expanded="false" class="yv-menu-btn" data-nav-toggle="" type="button">
+
+Menu
+<svg aria-hidden="true" viewbox="0 0 18 18">
+<path class="nav-toggle-open" d="M3 5h12M3 9h12M3 13h12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"></path>
+<path class="nav-toggle-close" d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"></path>
+</svg>
+</button>
+<a class="yv-logo" href="/en/">
+<img alt="" height="22" src="/assets/logo.svg" width="30"/>
+<span translate="no">Verbbe</span>
+</a>
+<div class="yv-end">
+<div aria-label="Language" class="lang-switch" role="group">
+<a aria-pressed="false" href="/es/" hreflang="es">ES</a>
+<a aria-current="true" aria-pressed="true" href="/en/" hreflang="en">EN</a>
+</div>
+<a class="yv-cta" href="https://apps.apple.com/app/verbbe" rel="noopener">App Store</a>
+</div>
+</header>
+<div aria-hidden="true" class="yv-overlay" data-menu="" id="site-nav">
+<button class="yv-overlay-close" data-nav-close="" type="button">
+<svg aria-hidden="true" viewbox="0 0 18 18">
+<path d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"></path>
+</svg>
+
+Close
+</button>
+<div class="yv-overlay-inner">
+<p class="yv-overlay-kicker">Verbbe</p>
+<div aria-label="Language" class="lang-switch yv-overlay-lang" role="group">
+<a aria-pressed="false" href="/es/" hreflang="es">ES</a>
+<a aria-current="true" aria-pressed="true" href="/en/" hreflang="en">EN</a>
+</div>
+<nav aria-label="Verbbe" class="yv-overlay-nav">
+<a href="#app" style="--i:0">App</a>
+<a href="#server" style="--i:1">Server</a>
+<a href="#verbena" style="--i:2" translate="no">Verbena</a>
+<a href="/en/artists/" style="--i:3">Artists</a>
+<a href="#legal" style="--i:4">Legal</a>
+</nav>
+<a class="yv-overlay-cta" href="#server">
+
+Start server
+</a>
+</div>
+</div>
+<main id="main">
+<section class="stage" data-deck="" id="inicio">
+<div class="stage-core">
+<h1>
+
+
+<span class="line">
+<span class="word" style="--i:0">Play what</span>
+<span class="word" style="--i:1">you</span>
+</span>
+<span class="line">
+<span class="word mark" style="--i:2">
+<span aria-hidden="true" class="mark-bg"></span>
+<span class="mark-txt">already own</span>
+</span>
+</span>
+
+</h1>
+<div aria-label="Albums" class="fan" data-crate="" role="listbox">
+<button aria-selected="false" class="fan-card" data-album="ventanas" role="option" style="--x:-150%; --y:-10px; --r:-14deg; --z:1; --d:0" type="button">
+<picture><source srcset="/assets/covers/ventanas-al-mar.webp" type="image/webp"/><img alt="" fetchpriority="high" height="800" src="/assets/covers/ventanas-al-mar.png" width="800"/></picture>
+</button>
+<button aria-selected="false" class="fan-card" data-album="porche" role="option" style="--x:-78%; --y:-2px; --r:-8deg; --z:2; --d:1" type="button">
+<picture><source srcset="/assets/covers/porche-de-verano.webp" type="image/webp"/><img alt="" height="800" loading="lazy" src="/assets/covers/porche-de-verano.png" width="800"/></picture>
+</button>
+<button aria-selected="true" class="fan-card" data-album="estatica" role="option" style="--x:0%; --y:10px; --r:0deg; --z:3; --d:2" type="button">
+<picture><source srcset="/assets/covers/sal-y-estatica.webp" type="image/webp"/><img alt="" height="800" loading="lazy" src="/assets/covers/sal-y-estatica.png" width="800"/></picture>
+</button>
+<button aria-selected="false" class="fan-card" data-album="faros" role="option" style="--x:78%; --y:-2px; --r:8deg; --z:4; --d:3" type="button">
+<picture><source srcset="/assets/covers/faros-bajos.webp" type="image/webp"/><img alt="" height="800" loading="lazy" src="/assets/covers/faros-bajos.png" width="800"/></picture>
+</button>
+<button aria-selected="false" class="fan-card" data-album="papel" role="option" style="--x:150%; --y:-10px; --r:14deg; --z:5; --d:4" type="button">
+<picture><source srcset="/assets/covers/papel-de-arroz.webp" type="image/webp"/><img alt="" height="800" loading="lazy" src="/assets/covers/papel-de-arroz.png" width="800"/></picture>
+</button>
+</div>
+
+<p class="stage-lede">Control the audio on your phone, or stream it from your computer. Play your files at home or away, with Verbbe.</p>
+</div>
+<a class="scroll-cue" href="#app">
+<span aria-hidden="true" class="scroll-ring">
+<svg viewbox="0 0 12 12"><path d="M6 2v7M3 6.5L6 9.5 9 6.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"></path></svg>
+</span>
+          Scroll
+        </a>
+</section>
+<div class="ribbon" data-ticker="">
+<div class="ribbon-track">
+<div class="ribbon-set">
+<span>MP3</span><span>M4A</span><span>AAC</span><span>ALAC</span><span>WAV</span><span>AIFF</span><span>FLAC</span><span>OPUS</span>
+<span>CarPlay</span><span>AirPlay</span><span translate="no">Verbena</span>
+No account
+Local files
+Lyrics from the file
+Your server
+</div>
+</div>
+</div>
+<section class="show" data-reveal="" id="app">
+<div class="show-copy">
+
+<p class="eyebrow">The app</p>
+
+<h2>Home, search, your library.</h2>
+
+<p class="lede">Lists, recents, mini player, and full screen. What’s playing shows on the lock screen and in CarPlay.</p>
+<div class="store-row">
+<a class="store" href="https://apps.apple.com/app/verbbe" rel="noopener">
+<svg aria-hidden="true" viewbox="0 0 24 24">
+<path d="M16.7 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.5.9s-1.8-0.8-3-.8c-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7 2-.1 2.9-2.3c1.1-1.5 1.5-2.9 1.5-3 0-.1-2.8-1.1-2.8-4.4zM14.6 5.9c.6-.8 1.1-1.9.9-3-0.9 0-2 .6-2.6 1.4-.6.7-1.1 1.8-.9 2.9 1 .1 2-.5 2.6-1.3z" fill="currentColor"></path>
+</svg>
+<span>
+<small>Download on the</small>
+                App Store
+              </span>
+</a>
+<span aria-disabled="true" class="store soon">
+<svg aria-hidden="true" viewbox="0 0 24 24">
+<path d="M3.5 3.6 13.2 12 3.5 20.4V3.6zm11.2 4.1 2.6 1.5-2.1 1.2-2.6-1.5 2.1-1.2zM4.9 2.1l12.4 7.1L15 11.4 3.4 4.7l1.5-2.6zm12.4 12.7L4.9 21.9 3.4 19.3 15 12.6l2.3 2.2zM20.1 11 17 9.2l-2.3 1.3L16.9 12l-2.2 1.5L17 14.8 20.1 13c.6-.3.6-1.3 0-1.6z" fill="currentColor"></path>
+</svg>
+<span>
+
+<small>Soon on</small>
+                Google Play
+              </span>
+</span>
+</div>
+<div aria-label="App screens" class="show-tabs" role="tablist">
+<button aria-controls="panel-screen" aria-selected="true" data-screen="home" id="tab-home" role="tab" type="button">
+Home
+</button>
+<button aria-controls="panel-screen" aria-selected="false" data-screen="player" id="tab-player" role="tab" type="button">
+Player
+</button>
+<button aria-controls="panel-screen" aria-selected="false" data-screen="library" id="tab-library" role="tab" type="button">
+Library
+</button>
+<button aria-controls="panel-screen" aria-selected="false" data-screen="server" id="tab-server" role="tab" type="button">
+Server
+</button>
+</div>
+<p class="show-cap" data-screen-cap="">
+
+Album carousel, made-for-you rows, and the mini player.
+</p>
+</div>
+<div aria-labelledby="tab-home" class="show-frame" id="panel-screen" role="tabpanel">
+<figure class="shot">
+<div class="shot-stack">
+<picture><source srcset="/assets/device/home.webp" type="image/webp"/><img alt="Verbbe Home with the album carousel" data-alt-en="Verbbe Home with the album carousel" data-alt-es="Inicio de Verbbe con el carrusel de álbumes" data-stage-img="" height="844" src="/assets/device/home.png" width="390"/></picture>
+<picture><source srcset="/assets/device/home.webp" type="image/webp"/><img alt="" aria-hidden="true" data-stage-next="" height="844" src="/assets/device/home.png" width="390"/></picture>
+</div>
+</figure>
+</div>
+</section>
+<section class="bits" data-reveal="">
+<header class="bits-head">
+
+<p class="eyebrow">Inside Verbbe</p>
+
+<h2>There’s no third-party catalog. You play what you already own.</h2>
+</header>
+<div class="bits-grid">
+<article>
+
+<h3>Library</h3>
+
+<p>Songs, albums, artists, genres, and playlists. Tags from the file: title, track, disc, year, BPM, composer.</p>
+</article>
+<article>
+
+<h3>Player</h3>
+
+<p>Mini player, full screen, queue, shuffle, repeat, and favorites. Lyrics if the file has USLT or the server indexed them.</p>
+</article>
+<article>
+<h3 translate="no">Verbena</h3>
+
+<p>iPhones on the same network, a code or a stamp. Guests see the host’s catalog and can control playback; files aren’t copied.</p>
+</article>
+<article>
+
+<h3>Cover editor</h3>
+
+<p>If an album has no art, you draw it: layers, a photo from the library, a palette. It stays on the device or on your server.</p>
+</article>
+<article>
+
+<h3>Search</h3>
+
+<p>Over what’s in this source. It doesn’t query someone else’s catalog. Switch local to server, and what you find switches with it.</p>
+</article>
+<article>
+
+<h3>Support the artist</h3>
+
+<p>The player matches the tag name against a public list. If there’s a store, it opens it. Verbbe takes 0%.</p>
+</article>
+</div>
+</section>
+<section class="host" data-reveal="" id="server">
+<header class="host-head">
+<p class="eyebrow">Local streaming</p>
+
+<h2>One command. The library on the PC.</h2>
+
+<p class="lede">One command on your computer. It uses the music folder you already have, without copying it. Open the page, create your account, and paste the address on the iPhone. <span translate="no">verbbe stop</span> turns the server off; the songs stay where they were.</p>
+</header>
+<div class="cli" data-terminal="install">
+<div class="cli-chrome">
+<span aria-hidden="true" class="cli-dots"><i></i><i></i><i></i></span>
+<span class="cli-title" translate="no">verbbe</span>
+<button aria-live="polite" class="copy-btn" data-copy="" type="button">
+
+Copy
+</button>
+</div>
+<div class="cli-tabs">
+<div aria-label="Install method" class="tab-group" role="tablist">
+<button data-method="cli" role="tab" type="button">npx</button>
+<button aria-selected="true" data-method="install" role="tab" type="button">curl</button>
+<button data-method="docker" role="tab" type="button">Docker</button>
+</div>
+<div aria-label="Operating system" class="tab-group" role="tablist">
+<button aria-selected="true" data-os="mac" role="tab" type="button">macOS</button>
+<button data-os="linux" role="tab" type="button">Linux</button>
+<button data-os="win" role="tab" type="button">Windows</button>
+</div>
+</div>
+<pre class="cli-body"><code data-command="">$ curl -fsSL https://verbbe.com/install.sh | bash
+$ verbbe start --music ~/Music</code></pre>
+<pre aria-hidden="true" class="cli-out"><code data-output=""></code></pre>
+</div>
+<div class="kits">
+<a class="kit" href="https://verbbe.com/install.sh">
+<span class="kit-mark verbbe"><img alt="" height="22" src="/assets/logo.svg" width="30"/></span>
+<span class="kit-copy">
+<h4>curl <em>recommended</em></h4>
+
+<p>No Node. The script installs Docker if needed and leaves the <code translate="no">verbbe</code> command.</p>
+<span class="kit-url">verbbe.com/install.sh</span>
+</span>
+</a>
+<a class="kit" href="https://www.npmjs.com/package/verbbe" rel="noopener">
+<span class="kit-mark node"><img alt="" height="28" src="/assets/vendors/node.svg" width="28"/></span>
+<span class="kit-copy">
+<h4>npx <em>Node</em></h4>
+<p lang="en" translate="no"><code>npx verbbe start --music ~/Music</code></p>
+<span class="kit-url">npmjs.com/package/verbbe</span>
+</span>
+</a>
+<a class="kit" href="https://www.docker.com/" rel="noopener">
+<span class="kit-mark docker"><img alt="" height="28" src="/assets/vendors/docker.svg" width="28"/></span>
+<span class="kit-copy">
+<h4>Docker <em>compose</em></h4>
+
+<p>Clone <span translate="no">bg-isma/verbbe</span> and in <span translate="no">server/</span> pass <span translate="no">DB_PASSWORD</span> and <span translate="no">MUSIC_LOCATION=~/Music</span>. Compose starts Postgres, Redis, API, and worker.</p>
+<span class="kit-url">docker.com</span>
+</span>
+</a>
+<a class="kit" href="https://tailscale.com/" rel="noopener">
+<span class="kit-mark tailscale"><img alt="" height="28" src="/assets/vendors/tailscale.svg" width="28"/></span>
+<span class="kit-copy">
+<h4>Tailscale <em class="is-away">Away</em></h4>
+
+<p>Only on the computer. <span translate="no">--mode funnel</span> publishes a <span translate="no">https://verbbe.…ts.net</span> link. The iPhone does not install Tailscale; you need the setup token.</p>
+<span class="kit-url">tailscale.com</span>
+</span>
+</a>
+</div>
+<header class="host-head host-off-head" id="quitar">
+
+<p class="eyebrow">Remove</p>
+
+<h2>One command. Off the PC.</h2>
+
+<p class="lede">It installs for whoever runs the CLI, not a fixed account. <span translate="no">uninstall</span> asks whether to delete the catalog. Songs are not touched. <span translate="no">stop</span> only pauses it.</p>
+</header>
+<div class="cli" data-terminal="remove">
+<div class="cli-chrome">
+<span aria-hidden="true" class="cli-dots"><i></i><i></i><i></i></span>
+<span class="cli-title" translate="no">verbbe uninstall</span>
+<button aria-live="polite" class="copy-btn" data-copy="" type="button">
+
+Copy
+</button>
+</div>
+<div class="cli-tabs">
+<div aria-label="Uninstall method" class="tab-group" role="tablist">
+<button data-method="cli" role="tab" type="button">npx</button>
+<button aria-selected="true" data-method="install" role="tab" type="button">curl</button>
+<button data-method="docker" role="tab" type="button">Docker</button>
+</div>
+<div aria-label="Uninstall action" class="tab-group" role="tablist">
+<button aria-selected="true" data-action="uninstall" role="tab" type="button">uninstall</button>
+<button data-action="stop" role="tab" type="button">stop</button>
+<button data-action="keep" role="tab" type="button">--keep-data</button>
+</div>
+<div aria-label="Operating system" class="tab-group" role="tablist">
+<button aria-selected="true" data-os="mac" role="tab" type="button">macOS</button>
+<button data-os="linux" role="tab" type="button">Linux</button>
+<button data-os="win" role="tab" type="button">Windows</button>
+</div>
+</div>
+<pre class="cli-body"><code data-command="">$ verbbe uninstall</code></pre>
+<pre aria-hidden="true" class="cli-out"><code data-output=""></code></pre>
+</div>
+</section>
+<section class="join" data-reveal="" id="verbena">
+<div class="join-copy">
+<p class="eyebrow" translate="no">Verbena</p>
+
+<h2>Let your friends run the party too.</h2>
+
+<p class="lede">Start a verbena, pass them the code or let them scan it. Once they’re in they can queue the cumbia from your library that the night deserves, pause or play, read the lyrics on their phone to sing along in the car, and a lot more.</p>
+</div>
+<figure class="join-stamp">
+<div aria-hidden="true" class="join-bg">
+<span class="join-glow join-glow-a"></span>
+<span class="join-glow join-glow-b"></span>
+<span class="join-glow join-glow-c"></span>
+<span class="join-vinyl">
+<span class="join-vinyl-spin">
+<span class="join-vinyl-ring"></span>
+<span class="join-vinyl-ring is-inner"></span>
+<span class="join-vinyl-hub"></span>
+</span>
+</span>
+</div>
+<svg aria-hidden="true" class="join-wave" fill="none" height="640" role="img" viewbox="0 0 640 640" width="640" xmlns="http://www.w3.org/2000/svg">
+<g class="wave-ring" data-ring="0">
+<path class="wave-arc" d="M 460.300 319.500 A 140.800 140.800 0 1 1 178.700 319.500 A 140.800 140.800 0 1 1 460.300 319.500" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+</g>
+<g class="wave-ring" data-ring="1">
+<path class="wave-arc" d="M 417.927 489.980 L 412.463 493.020 L 406.905 495.885 L 401.259 498.572 L 395.530 501.078 L 389.725 503.401 L 383.849 505.539 L 377.908 507.489 L 371.908 509.249 L 365.855 510.818 L 359.756 512.193 L 353.616 513.375 L 347.441 514.360 L 341.238 515.149 L 335.013 515.741 L 328.773 516.135 L 322.523 516.330 L 316.271 516.327 L 310.021 516.125 L 303.781 515.725 L 297.557 515.127" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 168.702 446.035 L 166.085 442.849 L 163.535 439.609 L 161.054 436.316 L 158.642 432.973 L 156.301 429.579 L 154.032 426.137 L 151.835 422.648 L 149.711 419.114 L 147.662 415.537 L 145.689 411.917 L 143.792 408.257 L 141.971 404.558" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 168.702 192.965 L 173.003 188.009 L 177.467 183.200 L 182.088 178.542 L 186.863 174.040 L 191.785 169.700 L 196.848 165.527 L 202.048 161.524 L 207.379 157.697 L 212.834 154.050 L 218.408 150.587 L 224.094 147.312 L 229.886 144.227 L 235.777 141.338 L 241.762 138.646 L 247.833 136.156 L 253.983 133.869 L 260.207 131.789 L 266.496 129.917 L 272.844 128.255 L 279.244 126.807 L 285.689 125.572 L 292.171 124.553 L 298.684 123.750 L 305.220 123.165 L 311.772 122.798 L 318.332 122.650 L 324.893 122.721 L 331.449 123.010 L 337.991 123.517 L 344.513 124.242 L 351.007 125.184 L 357.466 126.343 L 363.883 127.715 L 370.250 129.301 L 376.561 131.098 L 382.809 133.105 L 388.986 135.318 L 395.086 137.737 L 401.102 140.357 L 407.028 143.176" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 516.353 319.500 L 516.310 323.623 L 516.181 327.743 L 515.965 331.861 L 515.663 335.972 L 515.275 340.077 L 514.801 344.172 L 514.242 348.257 L 513.597 352.329 L 512.867 356.387 L 512.052 360.428 L 511.152 364.452 L 510.169 368.455" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+</g>
+<g class="wave-ring" data-ring="2">
+<path class="wave-arc" d="M 557.155 405.999 L 555.291 410.957 L 553.324 415.875 L 551.254 420.751 L 549.083 425.582 L 546.811 430.367 L 544.439 435.103 L 541.969 439.789 L 539.401 444.421 L 536.737 448.999 L 533.977 453.520 L 531.123 457.982 L 528.177 462.384" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 193.047 538.524 L 188.488 535.827 L 183.986 533.036 L 179.544 530.151 L 175.163 527.174 L 170.845 524.106 L 166.593 520.948 L 162.408 517.701 L 158.291 514.368 L 154.246 510.949 L 150.272 507.446 L 146.373 503.861 L 142.550 500.195" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 66.593 319.500 L 66.649 314.204 L 66.815 308.909 L 67.092 303.620 L 67.480 298.337 L 67.979 293.064 L 68.588 287.802 L 69.306 282.555 L 70.135 277.323 L 71.073 272.110 L 72.120 266.918 L 73.275 261.749 L 74.539 256.605" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 445.953 100.476 L 452.846 104.603 L 459.603 108.946 L 466.220 113.502 L 472.688 118.266 L 479.002 123.233 L 485.155 128.397 L 491.141 133.755 L 496.953 139.300 L 502.587 145.027 L 508.036 150.929 L 513.294 157.002 L 518.358 163.239 L 523.220 169.634 L 527.877 176.179 L 532.324 182.870 L 536.556 189.698 L 540.569 196.657 L 544.359 203.740 L 547.922 210.940 L 551.254 218.249" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+</g>
+<g class="wave-ring" data-ring="3">
+<path class="wave-arc" d="M 473.980 587.067 L 465.404 591.838 L 456.681 596.335 L 447.820 600.552 L 438.829 604.486 L 429.718 608.132 L 420.495 611.487 L 411.171 614.547 L 401.754 617.310 L 392.254 619.772 L 382.681 621.931 L 373.044 623.785 L 363.353 625.332 L 353.618 626.570 L 343.848 627.499 L 334.054 628.117 L 324.245 628.424 L 314.431 628.418 L 304.623 628.102 L 294.829 627.473 L 285.061 626.535" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 29.173 213.829 L 31.449 207.772 L 33.852 201.764 L 36.381 195.808 L 39.033 189.906 L 41.809 184.061 L 44.706 178.275 L 47.724 172.551 L 50.861 166.892 L 54.116 161.299 L 57.487 155.776 L 60.973 150.325 L 64.573 144.948" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 165.020 51.933 L 170.657 48.756 L 176.360 45.699 L 182.126 42.761 L 187.951 39.945 L 193.835 37.251 L 199.773 34.681 L 205.764 32.236 L 211.805 29.917 L 217.893 27.725 L 224.026 25.662 L 230.201 23.727 L 236.415 21.921" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 473.980 51.933 L 479.550 55.227 L 485.049 58.636 L 490.476 62.161 L 495.828 65.798 L 501.102 69.546 L 506.297 73.404 L 511.410 77.370 L 516.439 81.442 L 521.381 85.619 L 526.235 89.898 L 530.998 94.278 L 535.668 98.757" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+<path class="wave-arc" d="M 609.827 213.829 L 613.037 223.103 L 615.950 232.475 L 618.565 241.934 L 620.877 251.471 L 622.886 261.077 L 624.588 270.742 L 625.983 280.456 L 627.068 290.210 L 627.844 299.993 L 628.308 309.795 L 628.460 319.608 L 628.301 329.420 L 627.830 339.223 L 627.048 349.005 L 625.956 358.758 L 624.554 368.471 L 622.845 378.135 L 620.830 387.739 L 618.511 397.275 L 615.890 406.732" fill="none" pathlength="1" stroke="#fefefe" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92" stroke-width="14.080"></path>
+</g>
+<g class="wave-mark">
+<svg height="76.800" overflow="visible" viewbox="216 343 822 568" width="115.200" x="262.400" y="281.600">
+<g fill="#4FFF6F" transform="translate(0 1254) scale(0.1 -0.1)">
+<path d="M5478 8900 c-82 -14 -147 -41 -221 -90 -52 -35 -261 -238 -748 -727 -609 -612 -678 -684 -707 -743 -83 -170 -83 -332 -1 -500 29 -57 79 -112 428 -460 241 -241 415 -407 444 -424 113 -65 230 -86 343 -63 149 32 150 32 701 575 515 509 559 547 674 587 79 27 315 33 395 10 149 -43 166 -56 506 -393 l317 -315 48 5 c26 3 111 32 188 65 205 87 271 102 369 84 134 -25 143 -32 542 -432 323 -323 377 -373 439 -406 61 -32 81 -37 155 -41 93 -4 166 14 232 59 61 42 697 670 723 715 65 110 68 236 9 353 -30 60 -71 104 -373 400 -187 184 -357 344 -378 356 -109 65 -246 71 -362 14 -58 -28 -111 -76 -436 -399 -437 -432 -426 -425 -605 -425 -184 0 -100 -72 -1130 960 -492 493 -931 926 -975 963 -44 36 -109 93 -145 127 -80 73 -167 121 -257 140 -74 16 -104 17 -175 5z"></path>
+<path d="M6505 6745 c-78 -21 -105 -33 -158 -71 -26 -19 -253 -238 -504 -487 -250 -249 -474 -464 -497 -480 -107 -69 -241 -92 -496 -84 -190 5 -258 21 -367 83 -30 17 -202 183 -473 455 -257 258 -443 437 -470 453 -106 60 -219 68 -337 25 -54 -20 -84 -48 -401 -363 -189 -187 -356 -361 -372 -386 -68 -106 -75 -243 -19 -359 27 -55 78 -110 368 -401 362 -363 381 -378 505 -401 42 -7 76 -8 120 0 122 22 146 41 479 370 170 168 325 316 345 328 66 40 144 53 307 53 267 0 289 -13 466 -275 99 -147 217 -296 520 -660 215 -258 473 -569 574 -690 100 -121 203 -239 228 -262 150 -138 389 -161 564 -55 75 46 1259 1215 1322 1306 98 141 107 316 26 476 -22 43 -105 130 -404 425 -514 506 -704 689 -786 760 -38 33 -98 86 -133 117 -127 117 -271 160 -407 123z m200 -1052 c150 -92 637 -400 689 -435 68 -45 88 -75 88 -132 0 -72 -25 -103 -132 -167 -760 -450 -741 -439 -790 -439 -33 0 -55 6 -74 21 -57 45 -56 33 -56 601 0 507 1 524 20 556 48 78 123 77 255 -5z"></path>
+</g>
+</svg>
+</g>
+</svg>
+</figure>
+</section>
+<section class="share" data-reveal="">
+<div class="share-copy">
+
+<p class="eyebrow">Support artists</p>
+
+<h2>If you buy from their store, the money goes to them.</h2>
+
+<p class="lede">Public list, match on-device, 0% to Verbbe. If you’re independent, send the name as it appears in the tag and an https link.</p>
+<a class="pill-btn" href="/en/artists/">
+
+See the list
+</a>
+</div>
+<div aria-hidden="true" class="split">
+<div class="split-row is-artist" data-artist-fill="">
+<span class="split-fill">
+<span class="split-fill-inner">
+
+To the artist
+<b data-artist-pct="">0%</b>
+</span>
+</span>
+
+To the artist
+<b data-artist-pct="">0%</b>
+</div>
+<div class="split-row is-cut">
+<span>Verbbe</span>
+<b>0%</b>
+</div>
+</div>
+</section>
+<section class="ask" data-reveal="" id="preguntas">
+<header class="ask-head">
+
+<p class="eyebrow">Questions</p>
+
+<h2>Before you install</h2>
+</header>
+<div class="ask-list">
+<details>
+<summary>Do I need the server?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>No. The core is local. The server is for the PC folder and for listening away from home.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>Where is the /music folder?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>It only exists inside Docker. On the Mac or PC it’s <span translate="no">~/Music</span> (or your <span translate="no">--music</span> path). The panel can open it in Finder or Explorer.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>What is the API key for?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>For scripts or other apps. The iPhone signs in with email and password. If you don’t have an integration, you don’t need one.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>Where does it store data?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>Songs stay in your folder. The catalog (Postgres), artwork, and secrets go to <span translate="no">~/.verbbe</span> for <em>your</em> Mac or PC user, not a fixed account. Backup: <span translate="no">verbbe backup</span>.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>How do I uninstall it?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>Use the <a href="#quitar">Remove</a> console: <span translate="no">verbbe uninstall</span>. It asks whether to delete the catalog. Music is not deleted. Pause only: <span translate="no">verbbe stop</span>. Keep data: <span translate="no">--keep-data</span>.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>Does it always install for the same user?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>No. It uses whoever runs the CLI: their <span translate="no">~/Music</span> and their <span translate="no">~/.verbbe</span>. If that Mac account is ismael, those are ismael’s paths; on Ana’s machine, Ana’s.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>Does it play Spotify, Apple Music, or YouTube?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>No. It doesn’t connect to those catalogs. You play files you have, here or on a server you run.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>Does the iPhone install Tailscale?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>No. Tailscale runs only on the computer. The phone only needs Verbbe, the URL (home or Away), and your user.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>Is there Android?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>Not yet. The app is iOS 17+. Google Play is on the way, no date.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>What does it cost?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>The app is free. There’s an optional tip through Apple; it doesn’t unlock features. You run the server.</p>
+</div>
+</div>
+</details>
+<details>
+<summary>Who sees my music?</summary>
+<div class="ask-panel">
+<div class="ask-panel-inner">
+
+<p>Nobody on the developer’s side. Locally, this iPhone. On a server, that machine’s accounts. In a Verbena, whoever has the code on your network.</p>
+</div>
+</div>
+</details>
+</div>
+</section>
+</main>
+<footer class="site-foot" data-reveal="" id="legal">
+
+<h2 class="section-title">Legal</h2>
+<nav aria-label="Legal" class="legal-grid">
+<a class="legal-card privacy" href="/en/privacy/">
+<div class="card-top">
+<span aria-hidden="true" class="go-dot">
+<svg fill="none" viewbox="0 0 17 16">
+<path d="M6.48 12.5L11.1 8L6.48 3.5" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</span>
+</div>
+<div class="card-label">
+<svg aria-hidden="true" class="shield" fill="none" viewbox="0 0 14 16">
+<path d="M7 1.4L12.2 3.2v4.3c0 3.2-2.1 5.3-5.2 6.7C3.9 12.8 1.8 10.7 1.8 7.5V3.2L7 1.4Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.4"></path>
+</svg>
+
+Privacy
+</div>
+</a>
+<a class="legal-card notice" href="/en/legal/">
+<div class="card-top">
+<span aria-hidden="true" class="go-dot">
+<svg fill="none" viewbox="0 0 17 16">
+<path d="M6.48 12.5L11.1 8L6.48 3.5" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</span>
+</div>
+<div class="card-label">
+<svg aria-hidden="true" class="shield" fill="none" viewbox="0 0 14 16">
+<path d="M7 1.4L12.2 3.2v4.3c0 3.2-2.1 5.3-5.2 6.7C3.9 12.8 1.8 10.7 1.8 7.5V3.2L7 1.4Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.4"></path>
+</svg>
+
+Legal notice
+</div>
+</a>
+<a class="legal-card terms" href="/en/terms/">
+<div class="card-label">
+<svg aria-hidden="true" class="shield" fill="none" viewbox="0 0 14 16">
+<path d="M7 1.4L12.2 3.2v4.3c0 3.2-2.1 5.3-5.2 6.7C3.9 12.8 1.8 10.7 1.8 7.5V3.2L7 1.4Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.4"></path>
+</svg>
+
+Terms and conditions
+</div>
+<span aria-hidden="true" class="go-dot">
+<svg fill="none" viewbox="0 0 17 16">
+<path d="M6.48 12.5L11.1 8L6.48 3.5" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</span>
+</a>
+</nav>
+<p class="footer">
+
+Verbbe · bgisma · <a href="https://github.com/bg-isma/Verbbe">GitHub</a> · covers on this page are demonstration art
+</p>
+</footer>
+<script src="/assets/app.js"></script>
+<script src="/assets/site.js"></script>
+<script src="/assets/hero.js"></script>
+</body>
+</html>

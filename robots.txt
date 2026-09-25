@@ -63,6 +63,4 @@ Disallow: /
 User-agent: *
 Allow: /
 
-Host: https://verbbe.com
-
 Sitemap: https://verbbe.com/sitemap.xml
