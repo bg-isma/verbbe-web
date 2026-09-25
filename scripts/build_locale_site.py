@@ -401,7 +401,7 @@ def inject_home_jsonld(soup: BeautifulSoup, lang: str) -> None:
             "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
             "description": app_desc,
             "image": f"{SITE}/assets/og.png",
-            "downloadUrl": "https://apps.apple.com/app/verbbe",
+            "downloadUrl": "https://apps.apple.com/es/app/verbbe/id6803781873",
             "author": {"@type": "Organization", "name": "Verbbe", "url": SITE + "/"},
             "publisher": {"@type": "Organization", "name": "Verbbe", "url": SITE + "/"},
         },
